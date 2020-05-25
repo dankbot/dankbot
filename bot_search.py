@@ -4,7 +4,7 @@ import re
 
 
 class SearchBot(ActivatableSimpleBot):
-    P_SEARCH_DONE = re.compile(f"^\\*\\*Area searched:\\*\\* `([A-Z]*)`\n.*([0-9]+) coins.*" + P_EOL)
+    P_SEARCH_DONE = re.compile(f"^\\*\\*Area searched:\\*\\* `([A-Z]*)`\n.*?([0-9,]+) coins.*" + P_EOL)
     P_SEARCH_FAIL_GUESS = re.compile(f"^\\*\\*Area searched:\\*\\* `([A-Z]*)`\n.*" + P_EOL)
     P_SEARCH_FAIL_OPT = re.compile("^what are you THINKING man that's not a valid option from the list\\?\\?" + P_EOL)
     SEARCH_OPTIONS_TXT = "Where do you want to search? Pick from the list below and type it in chat.\n"
