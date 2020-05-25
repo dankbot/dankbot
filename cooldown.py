@@ -4,6 +4,8 @@ from asyncio import Event
 
 
 class CooldownHelper:
+    COOLDOWN_TITLES = ["Slow it down, cmon", "Woah now, slow it down"]
+
     def __init__(self, cooldown_base):
         self.known_cooldown = None
         self.base = cooldown_base
@@ -38,8 +40,8 @@ class CooldownHelper:
         if len(msg.embeds) != 1:
             return
         e = msg.embeds[0]
-        if e.title == "Slow it down, cmon" and e.description.startswith(cdown_txt + ", try again in  **"):
-            c = e.description[len(cdown_txt + ", try again in  **"):]
+        if e.title in CooldownHelper.COOLDOWN_TITLES and e.description.startswith(cdown_txt + " **"):
+            c = e.description[len(cdown_txt + " **"):]
             c, _, _ = c.partition(" seconds**")
             return float(c)
         return None
@@ -50,5 +52,5 @@ class CooldownHelper:
             return random.uniform(cooldown - 4, cooldown + 10)
         if cooldown >= 10:
             return random.uniform(cooldown - 2, cooldown + 5)
-        return max(random.uniform(cooldown - 0.1, cooldown + 1), 5)
+        return max(random.uniform(cooldown - 0.1, cooldown + 1), 0.5)
 

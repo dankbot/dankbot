@@ -42,8 +42,6 @@ class SimpleBot(BotBase):
         self.log = logging.getLogger("bot." + name)
         self.cooldown = CooldownHelper(bot.config["cooldown"][name])
         self.cooldown_txt = cooldown_txt
-        self.active_on_channel = None
-        self.active_time = None
         self.execution_timeout = time.time()
         self.exclusive_run = True
 
@@ -71,12 +69,20 @@ class SimpleBot(BotBase):
 
     def reset_timeout(self):
         self.execution_timeout = time.time() + self.bot.config["max_reply_s"]
-        if self.active_time is not None:
-            self.active_time = time.time()
 
-    async def on_self_message(self, message):
-        if self.is_activation_command(message):
-            self.active_on_channel = message.channel.id
+    async def send_command(self):
+        pass
+
+
+class ActivatableSimpleBot(SimpleBot):
+    def __init__(self, bot, name, cooldown_txt):
+        super().__init__(bot, name, cooldown_txt)
+        self.active_on_channel = None
+        self.active_time = None
+
+    def reset_timeout(self):
+        super().reset_timeout()
+        if self.active_time is not None:
             self.active_time = time.time()
 
     async def on_bot_message(self, message):
@@ -94,12 +100,13 @@ class SimpleBot(BotBase):
                 self.active_time = None
                 self.cooldown.on_executed()
 
-    async def send_command(self):
-        pass
-
-    def is_activation_command(self, message):
-        return False
+    async def on_self_message(self, message):
+        if self.is_activation_command(message):
+            self.active_on_channel = message.channel.id
+            self.active_time = time.time()
 
     async def process_bot_message(self, message):
         pass
 
+    def is_activation_command(self, message):
+        return False
