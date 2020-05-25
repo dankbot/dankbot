@@ -42,7 +42,7 @@ class CooldownHelper:
         e = msg.embeds[0]
         if e.title in CooldownHelper.COOLDOWN_TITLES and e.description.startswith(cdown_txt + " **"):
             c = e.description[len(cdown_txt + " **"):]
-            c, _, _ = c.partition(" seconds**")
+            c, _, _ = c.partition(" second")
             return float(c)
         return None
 
