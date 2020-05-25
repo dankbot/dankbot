@@ -4,12 +4,12 @@ import re
 
 
 class HuntBot(ActivatableSimpleBot):
-    P_HUNT_DONE = re.compile(f"^You went hunting in the woods and brought back a ({P_SHOP_NAME}) {P_SHOP_ICON}!$")
-    P_HUNT_DRAGON = re.compile(f"^You went hunting, and came back with a fucking Dragon 🐲, what the hell\\?$")
-    P_HUNT_FAIL = re.compile("^lmao you are terrible, you found nothing to hunt$")
-    P_HUNT_FAIL2 = re.compile("^You went to shoot the dragon, and you weak little macaroni legs gave out and you fell\\. Missing the shot, the dragon ate you\\. LOL$")
-    P_HUNT_RISK = re.compile("^Holy fucking shit god forbid you find something innocent like a duck, ITS A DRAGON! Type the phrase below in the next 10 seconds or you're toast!\nType `(.*)`$")
-    P_NO_ITEM = re.compile("^You don't have a hunting rifle, you need to go buy one\\. You're not good enough to shoot animals with your bare hands\\.$")
+    P_HUNT_DONE = re.compile(f"^You went hunting in the woods and brought back a ({P_SHOP_NAME}) {P_SHOP_ICON}!" + P_EOL)
+    P_HUNT_DRAGON = re.compile(f"^You went hunting, and came back with a fucking Dragon 🐲, what the hell\\?" + P_EOL)
+    P_HUNT_FAIL = re.compile("^lmao you are terrible, you found nothing to hunt" + P_EOL)
+    P_HUNT_FAIL2 = re.compile("^You went to shoot the dragon, and you weak little macaroni legs gave out and you fell\\. Missing the shot, the dragon ate you\\. LOL" + P_EOL)
+    P_HUNT_RISK = re.compile("^Holy fucking shit god forbid you find something innocent like a duck, ITS A DRAGON! Type the phrase below in the next 10 seconds or you're toast!\nType `(.*)`" + P_EOL)
+    P_NO_ITEM = re.compile("^You don't have a hunting rifle, you need to go buy one\\. You're not good enough to shoot animals with your bare hands\\." + P_EOL)
     COOLDOWN_TXT = "The forest seems a little empty right now, try again in "
 
     def __init__(self, bot):

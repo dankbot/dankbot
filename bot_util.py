@@ -1,5 +1,6 @@
 import re
 
+P_EOL = "(?:\n|$)"
 P_SHOP_ICON = "(?:.|<:[a-z]+:[0-9]+>)"
 P_SHOP_NAME = "[A-Za-z0-9 ]+?"
 P_MENTION = "<@!?[0-9]+>"

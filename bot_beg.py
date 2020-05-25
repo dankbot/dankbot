@@ -4,9 +4,9 @@ import re
 
 
 class BegBot(ActivatableSimpleBot):
-    P_REPLY_NORMAL = re.compile(f"^\\*\\*.*?\\*\\* has donated ([0-9,]+) coins to ({P_MENTION})!$")
-    P_REPLY_ITEM = re.compile(f"^\\*\\*.*?\\*\\* has donated ([0-9,]+) coins to ({P_MENTION}), and a {P_SHOP_ICON} \\*\\*({P_SHOP_NAME})\\*\\*(?: WOW LUCKY)?$")
-    P_REPLY_NO_MONEY_GUESS = re.compile(f"^\\*\\*.*?\\*\\*: .*")
+    P_REPLY_NORMAL = re.compile(f"^\\*\\*.*?\\*\\* has donated ([0-9,]+) coins to ({P_MENTION})!" + P_EOL)
+    P_REPLY_ITEM = re.compile(f"^\\*\\*.*?\\*\\* has donated ([0-9,]+) coins to ({P_MENTION}), and a {P_SHOP_ICON} \\*\\*({P_SHOP_NAME})\\*\\*(?: WOW LUCKY)?" + P_EOL)
+    P_REPLY_NO_MONEY_GUESS = re.compile(f"^\\*\\*.*?\\*\\*: .*" + P_EOL)
     COOLDOWN_TXT = "Stop begging so much, it makes you look like a little baby.\nYou can have more coins in "
 
     def __init__(self, bot):

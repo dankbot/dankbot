@@ -4,12 +4,12 @@ import re
 
 
 class FishBot(ActivatableSimpleBot):
-    P_FISH_DONE = re.compile(f"^You cast out your line and brought back ([0-9]*) ({P_SHOP_NAME}) {P_SHOP_ICON}!$")
-    P_FISH_DONE2 = re.compile(f"^You cast out your line and brought back one ({P_SHOP_NAME}) {P_SHOP_ICON}, nice catch!$")
-    P_FISH_FAIL = re.compile("^lol you suck, you found nothing$")
-    P_FISH_FAIL2 = re.compile("^oh snap, your fishing pole fell in the water bc the force of the OP AF fish was too much for your weak little macaroni arms!$")
-    P_FISH_RISK = re.compile("^ahhhhh the fish is too strong and your line is at risk to break! quick, type the phrase below in the next 10 seconds\nType `(.*)`$")
-    P_NO_ITEM = re.compile("^You don't have a fishing pole, you need to go buy one\\.$")
+    P_FISH_DONE = re.compile(f"^You cast out your line and brought back ([0-9]*) ({P_SHOP_NAME}) {P_SHOP_ICON}!" + P_EOL)
+    P_FISH_DONE2 = re.compile(f"^You cast out your line and brought back one ({P_SHOP_NAME}) {P_SHOP_ICON}, nice catch!" + P_EOL)
+    P_FISH_FAIL = re.compile("^lol you suck, you found nothing" + P_EOL)
+    P_FISH_FAIL2 = re.compile("^oh snap, your fishing pole fell in the water bc the force of the OP AF fish was too much for your weak little macaroni arms!" + P_EOL)
+    P_FISH_RISK = re.compile("^ahhhhh the fish is too strong and your line is at risk to break! quick, type the phrase below in the next 10 seconds\nType `(.*)`" + P_EOL)
+    P_NO_ITEM = re.compile("^You don't have a fishing pole, you need to go buy one\\." + P_EOL)
     COOLDOWN_TXT = "The fish seem weary of fishermen right now, try again in "
 
     def __init__(self, bot):
