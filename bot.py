@@ -77,6 +77,10 @@ class TheBot(discord.Client):
                 await message.channel.send("", embed=e)
 
     async def on_message_edit(self, before, after):
+        if after.channel.id == self.config["type_channel_id"]:
+            self.log.info(f"Edited message from {after.author}: {after.content}")
+            for e in after.embeds:
+                self.log.info(f"Embed {e.title}: {e.description}")
         if after.author.id == self.config["bot_id"]:
             for b in self.bots:
                 await b.on_bot_message_edit(after)
