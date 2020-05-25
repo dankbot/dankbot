@@ -7,6 +7,7 @@ from bot_search import SearchBot
 from bot_meme import MemeBot
 from bot_fish import FishBot
 from bot_hunt import HuntBot
+from bot_event import EventBot
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', stream=sys.stdout)
 logging.getLogger("bot").setLevel(logging.DEBUG)
@@ -17,5 +18,6 @@ bot.add_bot(SearchBot(bot))
 bot.add_bot(MemeBot(bot))
 bot.add_bot(FishBot(bot))
 bot.add_bot(HuntBot(bot))
+bot.add_bot(EventBot(bot))
 bot.run(config["token"])
 bot.stop()

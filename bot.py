@@ -58,8 +58,6 @@ class TheBot(discord.Client):
         if message.author.id == self.config["bot_id"]:
             for b in self.bots:
                 await b.on_bot_message(message)
-            if "EVENT TIME" in message.content:
-                await self.send_notify(f"ya fishing for these events " + message.channel.mention)
 
         if message.content.startswith("say "):
             await message.channel.send(message.content[4:])
