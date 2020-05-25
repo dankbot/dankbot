@@ -41,7 +41,7 @@ class SearchBot(ActivatableSimpleBot):
 
         r = SearchBot.P_SEARCH_DONE.match(message.content)
         if r and r.group(1) == self.area_searched:
-            self.bot.inventory.add_coins(int(r.group(2)), "search")
+            self.bot.inventory.add_coins(parse_bot_int(r.group(2)), "search")
             return True
 
         r = SearchBot.P_SEARCH_FAIL_GUESS.match(message.content)

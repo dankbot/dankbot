@@ -19,3 +19,7 @@ def get_mention_user_id(txt):
 
 def filter_ascii(txt):
     return P_NON_ASCII.sub("", txt)
+
+
+def parse_bot_int(i):
+    return int(i.replace(",", ""))

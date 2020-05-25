@@ -46,18 +46,18 @@ class MemeBot(ActivatableSimpleBot):
 
         r = MemeBot.P_MEME_DONE.match(message.content)
         if r:
-            self.bot.inventory.add_coins(int(r.group(1)), "meme")
+            self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "meme")
             return True
 
         r = MemeBot.P_MEME_TRENDING.match(message.content)
         if r:
-            self.bot.inventory.add_coins(int(r.group(1)), "meme")
+            self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "meme")
             return True
 
         r = MemeBot.P_MEME_TRENDING_ITEM.match(message.content)
         if r:
-            self.bot.inventory.add_coins(int(r.group(1)), "meme")
-            self.bot.inventory.add_item(r.group(3), int(r.group(2)), "meme")
+            self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "meme")
+            self.bot.inventory.add_item(r.group(3), parse_bot_int(r.group(2)), "meme")
             return True
 
         r = MemeBot.P_MEME_HATE.match(message.content)

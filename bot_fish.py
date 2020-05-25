@@ -24,7 +24,7 @@ class FishBot(ActivatableSimpleBot):
     async def process_bot_message(self, message):
         r = FishBot.P_FISH_DONE.match(message.content)
         if r:
-            self.bot.inventory.add_item(r.group(2), int(r.group(1)), "fish")
+            self.bot.inventory.add_item(r.group(2), parse_bot_int(r.group(1)), "fish")
             return True
 
         r = FishBot.P_FISH_DONE2.match(message.content)
