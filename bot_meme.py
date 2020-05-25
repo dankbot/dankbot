@@ -13,7 +13,7 @@ class MemeBot(ActivatableSimpleBot):
     P_MEME_HATE = re.compile(f"^Everyone \\*\\*hates\\*\\* your meme, and it ended up with \\*\\*-[0-9,]+ karma\\*\\*. You get 0 coins lol sucks to be you" + P_EOL)
     P_MEME_LOST_LAPTOP = re.compile(f"^Everyone \\*\\*hates\\*\\* your meme, and it ended up with \\*\\*-[0-9,]+ karma\\*\\*. You get 0 coins AND now your :laptop: \\*\\*Laptop\\*\\* is broken lmao" + P_EOL)
     P_MEME_FAIL_OPT = re.compile("^That's not an option my friend" + P_EOL)
-    COOLDOWN_TXT = "The fish seem weary of fishermen right now, try again in "
+    COOLDOWN_TXT = "If you post memes too much, you look like a normie. Wait "
 
     def __init__(self, bot):
         super().__init__(bot, "meme", MemeBot.COOLDOWN_TXT)
