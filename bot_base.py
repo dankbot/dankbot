@@ -39,25 +39,40 @@ class SimpleBot(BotBase):
     def __init__(self, bot, name, cooldown_txt):
         super().__init__(bot)
         self.name = name
-        self.logger = logging.getLogger("bot." + name)
+        self.log = logging.getLogger("bot." + name)
         self.cooldown = CooldownHelper(bot.config["cooldown"][name])
         self.cooldown_txt = cooldown_txt
         self.active_on_channel = None
         self.active_time = None
+        self.execution_timeout = time.time()
         self.exclusive_run = True
 
     async def run(self):
-        self.logger.info("Executing command")
+        self.log.info("Executing command")
+
         self.cooldown.on_send()
+        self.reset_timeout()
         await self.send_command()
-        try:
-            await asyncio.wait_for(self.cooldown.wait(), self.bot.config["max_reply_s"])
-            next_try_in = self.cooldown.get_next_try_in()
-        except asyncio.TimeoutError:
-            self.logger.info("Timed out waiting for response")
-            next_try_in = self.bot.config["retry_on_timeout_s"]
-        self.logger.info(f"Rescheduled in {next_try_in}s")
+        next_try_in = self.bot.config["retry_on_timeout_s"]
+        while True:
+            remaining = self.execution_timeout - time.time()
+            if remaining < 0.05:
+                self.log.info("Timed out waiting for response")
+                break
+            try:
+                await asyncio.wait_for(self.cooldown.wait(), remaining)
+                next_try_in = self.cooldown.get_next_try_in()
+                self.log.info("Finished successfully")
+                break
+            except asyncio.TimeoutError:
+                pass
+        self.log.info(f"Rescheduled in {next_try_in}s")
         self.queue_run(next_try_in)
+
+    def reset_timeout(self):
+        self.execution_timeout = time.time() + self.bot.config["max_reply_s"]
+        if self.active_time is not None:
+            self.active_time = time.time()
 
     async def on_self_message(self, message):
         if self.is_activation_command(message):

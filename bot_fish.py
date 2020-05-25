@@ -34,6 +34,7 @@ class FishBot(SimpleBot):
         r = FishBot.P_FISH_RISK.match(message.content)
         if r:
             self.bot.typer.send_message(filter_ascii(r.group(1)))
+            self.reset_timeout()
             return False
 
         if FishBot.P_FISH_FAIL.match(message.content):

@@ -5,7 +5,7 @@ from bot import TheBot
 from bot_beg import BegBot
 from bot_fish import FishBot
 
-logging.basicConfig(stream=sys.stdout)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', stream=sys.stdout)
 logging.getLogger("bot").setLevel(logging.DEBUG)
 
 bot = TheBot(config)
