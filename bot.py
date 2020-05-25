@@ -48,7 +48,7 @@ class TheBot(discord.Client):
                 b.queue_run(0)
 
     async def on_message(self, message):
-        if message.channel.id == self.config["log_channel"]:
+        if message.channel.id == self.config["type_channel_id"]:
             self.log.info(f"Message from {message.author}: {message.content}")
             for e in message.embeds:
                 self.log.info(f"Embed {e.title}: {e.description}")
@@ -75,4 +75,9 @@ class TheBot(discord.Client):
                 e = discord.Embed(title='The Stats')
                 e.add_field(name="Coins", value="; ".join(f"{k}: {v}" for k, v in self.inventory.coins_stats.items()))
                 await message.channel.send("", embed=e)
+
+    async def on_message_edit(self, before, after):
+        if after.author.id == self.config["bot_id"]:
+            for b in self.bots:
+                await b.on_bot_message_edit(after)
 

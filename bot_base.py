@@ -34,6 +34,9 @@ class BotBase:
     async def on_bot_message(self, message):
         pass
 
+    async def on_bot_message_edit(self, message):
+        pass
+
 
 class SimpleBot(BotBase):
     def __init__(self, bot, name, cooldown_txt):
