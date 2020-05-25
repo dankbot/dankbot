@@ -85,12 +85,17 @@ class ActivatableSimpleBot(SimpleBot):
         if self.active_time is not None:
             self.active_time = time.time()
 
-    async def on_bot_message(self, message):
-        if self.active_on_channel == message.channel.id:
+    def is_active(self, channel_id):
+        if self.active_on_channel == channel_id:
             if time.time() > self.active_time + self.bot.config["max_reply_s"]:
                 self.active_on_channel = None
                 self.active_time = None
-                return
+                return False
+            return True
+        return False
+
+    async def on_bot_message(self, message):
+        if self.is_active(message.channel.id):
             if self.cooldown.process_bot_message(message, self.cooldown_txt):
                 self.active_on_channel = None
                 self.active_time = None
