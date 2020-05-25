@@ -7,8 +7,9 @@ class FishBot(ActivatableSimpleBot):
     P_FISH_DONE = re.compile(f"^You cast out your line and brought back ([0-9]*) ({P_SHOP_NAME}) {P_SHOP_ICON}!$")
     P_FISH_DONE2 = re.compile(f"^You cast out your line and brought back one ({P_SHOP_NAME}) {P_SHOP_ICON}, nice catch!$")
     P_FISH_FAIL = re.compile("^lol you suck, you found nothing$")
+    P_FISH_FAIL2 = re.compile("^oh snap, your fishing pole fell in the water bc the force of the OP AF fish was too much for your weak little macaroni arms!$")
     P_FISH_RISK = re.compile("^ahhhhh the fish is too strong and your line is at risk to break! quick, type the phrase below in the next 10 seconds\nType `(.*)`$")
-    P_NO_POLE = re.compile("^You don't have a fishing pole, you need to go buy one.$")
+    P_NO_ITEM = re.compile("^You don't have a fishing pole, you need to go buy one\\.$")
     COOLDOWN_TXT = "The fish seem weary of fishermen right now, try again in "
 
     def __init__(self, bot):
@@ -37,10 +38,10 @@ class FishBot(ActivatableSimpleBot):
             self.reset_timeout()
             return False
 
-        if FishBot.P_FISH_FAIL.match(message.content):
+        if FishBot.P_FISH_FAIL.match(message.content) or FishBot.P_FISH_FAIL2.match(message.content):
             return True
 
-        if FishBot.P_NO_POLE.match(message.content):
+        if FishBot.P_NO_ITEM.match(message.content):
             await self.bot.send_notify(f"prob get a fishing pole dude")
             return True
 
