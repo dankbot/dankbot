@@ -9,7 +9,7 @@ from bot_fish import FishBot
 from bot_hunt import HuntBot
 from bot_event import EventBot
 
-logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', stream=sys.stdout)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(name)s %(message)s', stream=sys.stdout)
 logging.getLogger("bot").setLevel(logging.DEBUG)
 
 bot = TheBot(config)
