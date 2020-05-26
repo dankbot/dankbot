@@ -6,7 +6,6 @@ from bot_blackjack import BlackjackBot
 from typer import MessageTyper
 from inventory import InventoryTracker
 from bot_gamble import GambleBot
-from gambler import TheGambler
 
 
 class TheBot(discord.Client):
@@ -23,7 +22,6 @@ class TheBot(discord.Client):
         self.notify_channel = None
         self.notify_channel_event = Event()
         self.typer.start()
-        self.gambler = TheGambler(self)
         self.started_bots = False
 
     def add_bot(self, bot):
@@ -95,10 +93,6 @@ class TheBot(discord.Client):
                 e.add_field(name="Lost", value=str(blackjack_bot.total_lost))
                 e.add_field(name="Outcomes", value="; ".join(f"{k}: {v}" for k, v in blackjack_bot.outcomes.items()))
                 await message.channel.send("", embed=e)
-            if args[0] == "set" and len(args) >= 3:
-                if args[1] == "gamble":
-                    self.gambler.set_base(int(args[2]))
-                    await message.channel.send(f"gotcha, will gamble to get {self.gambler.gamble_amount_base} coins")
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:

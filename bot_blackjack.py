@@ -30,13 +30,12 @@ class BlackjackBot(ActivatableSimpleBot):
         self.game_writer = open("tmp/games.txt", "a+")
 
         self.outcomes = OrderedDict()
-        for t in ["won", "won_busted","won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied", "end", "timeout"]:
+        for t in ["won", "won_busted", "won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied", "end", "timeout"]:
             self.outcomes[t] = 0
         self.total_won = 0
         self.total_lost = 0
 
     def end_game(self, outcome, money_outcome):
-        self.bot.gambler.on_gamble_complete(money_outcome)
         self.outcomes[outcome] += 1
         if money_outcome >= 0:
             self.total_won += money_outcome
@@ -53,8 +52,7 @@ class BlackjackBot(ActivatableSimpleBot):
         self.current_game = []
 
     async def send_command(self):
-        amount = self.bot.gambler.on_gamble_start()
-        self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"bj {amount}"))
+        self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"bj 100"))
 
     def is_activation_command(self, message):
         return message.content.startswith(self.bot.get_prefixed_cmd("bj "))
