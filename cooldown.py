@@ -27,6 +27,9 @@ class CooldownHelper:
         self.known_cooldown = None
         self.done_event.set()
 
+    def override_cooldown(self, time_from_now):
+        self.known_cooldown = time.time() + time_from_now
+
     def process_bot_message(self, message, cooldown_txt):
         c = CooldownHelper.extract_cooldown(message, cooldown_txt)
         if c is not None:

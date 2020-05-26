@@ -56,6 +56,8 @@ class BlackjackBot(ActivatableSimpleBot):
     async def on_self_message(self, message):
         if self.is_activation_command(message):
             self.stake = int(message.content[len(self.bot.get_prefixed_cmd("bj ")):])
+            # cooldown is counted from the execution of this command instead of game end in case of blackjack
+            self.cooldown.override_cooldown(self.cooldown.base)
         if len(self.current_game) > 0:
             if message.content == "h":
                 self.current_game[-1]["decision"] = "hit"
