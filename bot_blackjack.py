@@ -3,6 +3,7 @@ from bot_util import *
 import json
 from discord import Embed
 from blahjack import run_blahjack
+from collections import OrderedDict
 
 
 class BlackjackBot(ActivatableSimpleBot):
@@ -28,7 +29,14 @@ class BlackjackBot(ActivatableSimpleBot):
         self.stake = 0
         self.game_writer = open("tmp/games.txt", "a+")
 
+        self.outcomes = OrderedDict()
+        for t in ["won", "won_busted","won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied"]:
+            self.outcomes[t] = 0
+        self.money_won = 0
+
     def end_game(self, outcome, money_outcome):
+        self.outcomes[outcome] += 1
+        self.money_won += money_outcome
         dict = {
             "outcome": outcome,
             "money_outcome": money_outcome,
