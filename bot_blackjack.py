@@ -72,7 +72,7 @@ class BlackjackBot(ActivatableSimpleBot):
         await super().on_self_message(message)
 
     def on_timeout(self):
-        self.end_game(0, "timeout")
+        self.end_game("timeout", 0)
 
     @staticmethod
     def parse_cards(str):
