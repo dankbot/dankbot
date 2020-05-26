@@ -12,7 +12,7 @@ class BlackjackBot(ActivatableSimpleBot):
     GAME_WON_BUSTED = re.compile(f"\\*\\*You win! Your opponent busted!\\*\\* \nYou won \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_WON_21 = re.compile(f"\\*\\*You win! You have 21!\\*\\* \nYou won \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_WON_5CARDS = re.compile(f"\\*\\*You win! You took 5 cards without going over 21.\\*\\* \nYou won \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
-    GAME_LOST_LOWER = re.compile(f"^\\*\\*You lose! You have [0-9]*\\. Dealer has [0-9]*\\.\\*\\* You lost \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
+    GAME_LOST_LOWER = re.compile(f"^\\*\\*You lose! You have [0-9]*, Dealer has [0-9]*\\.\\*\\* You lost \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_LOST_BUSTED = re.compile(f"^\\*\\*You lose! Busted!\\*\\* You lost \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_LOST_21 = re.compile(f"^\\*\\*You lose! Your opponent reached 21 before you!\\.\\*\\* You lost \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_TIE = re.compile(f"^\\*\\*You tied with your opponent!\\*\\* Your wallet hasn't changed! You have [0-9,]+ coins still." + P_EOL)
