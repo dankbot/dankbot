@@ -102,7 +102,7 @@ class BlackjackBot(ActivatableSimpleBot):
 
     async def process_bot_message(self, message):
         if BlackjackBot.GAME_END.match(message.content):
-            self.end_game("end", -self.stake/2)
+            self.end_game("end", -self.stake//2)
             return True
 
         if message.content not in ["", BlackjackBot.GAME_OPTIONS_HINT, BlackjackBot.GAME_OPTIONS_HINT2]:
