@@ -30,7 +30,7 @@ class BlackjackBot(ActivatableSimpleBot):
         self.game_writer = open("tmp/games.txt", "a+")
 
         self.outcomes = OrderedDict()
-        for t in ["won", "won_busted","won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied", "timeout"]:
+        for t in ["won", "won_busted","won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied", "end", "timeout"]:
             self.outcomes[t] = 0
         self.total_won = 0
         self.total_lost = 0
