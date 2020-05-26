@@ -18,7 +18,8 @@ class GambleBot(ActivatableSimpleBot):
         self.draw_lost_money = 0
 
     async def send_command(self):
-        self.bot.typer.send_message(self.bot.get_prefixed_cmd("gamble 100"))
+        amount = self.bot.gambler.on_gamble_start()
+        self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"gamble {amount}"))
 
     def is_activation_command(self, message):
         return message.content.startswith(self.bot.get_prefixed_cmd("gamble "))
@@ -35,18 +36,21 @@ class GambleBot(ActivatableSimpleBot):
         if r:
             self.won += 1
             self.won_money += parse_bot_int(r.group(1))
+            self.bot.gambler.on_gamble_complete(parse_bot_int(r.group(1)))
             return True
 
         r = GambleBot.GAME_LOST.match(message.embeds[0].description)
         if r:
             self.lost += 1
             self.lost_money += parse_bot_int(r.group(1))
+            self.bot.gambler.on_gamble_complete(-parse_bot_int(r.group(1)))
             return True
 
         r = GambleBot.GAME_TIE.match(message.embeds[0].description)
         if r:
             self.draw += 1
             self.draw_lost_money += parse_bot_int(r.group(1))
+            self.bot.gambler.on_gamble_complete(-parse_bot_int(r.group(1)))
             return True
 
         return False
