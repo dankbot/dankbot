@@ -59,6 +59,7 @@ class SimpleBot(BotBase):
             remaining = self.execution_timeout - time.time()
             if remaining < 0.05:
                 self.log.info("Timed out waiting for response")
+                self.on_timeout()
                 break
             try:
                 await asyncio.wait_for(self.cooldown.wait(), remaining)
@@ -69,6 +70,9 @@ class SimpleBot(BotBase):
                 pass
         self.log.info(f"Rescheduled in {next_try_in}s")
         self.queue_run(next_try_in)
+
+    def on_timeout(self):
+        pass
 
     def reset_timeout(self):
         self.execution_timeout = time.time() + self.bot.config["max_reply_s"]

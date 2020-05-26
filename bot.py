@@ -80,17 +80,21 @@ class TheBot(discord.Client):
                 await message.channel.send("", embed=e)
             if args[0] == "gamble":
                 gamble_bot = next((b for b in self.bots if isinstance(b, GambleBot)), None)
-                blackjack_bot = next((b for b in self.bots if isinstance(b, BlackjackBot)), None)
+                if gamble_bot is None:
+                    return
                 e = discord.Embed(title='Gamble Stats')
-                if gamble_bot is not None:
-                    e.add_field(name="Won", value=f"{gamble_bot.won} games, {gamble_bot.won_money} coins")
-                    e.add_field(name="Lost", value=f"{gamble_bot.lost} games, {gamble_bot.lost_money} coins")
-                    e.add_field(name="Drew", value=f"{gamble_bot.draw} games, {gamble_bot.draw_lost_money} coins")
-                if blackjack_bot is not None:
-                    e.add_field(name="Blackjack", value=str(blackjack_bot.money_won))
-                    e.add_field(name="Blackjack Outcomes", value="; ".join(f"{k}: {v}" for k, v in blackjack_bot.outcomes.items()))
-                if gamble_bot is None and blackjack_bot is None:
-                    e.description = "wtf dude you disabled both gambling bots and want stats?"
+                e.add_field(name="Won", value=f"{gamble_bot.won} games, {gamble_bot.won_money} coins")
+                e.add_field(name="Lost", value=f"{gamble_bot.lost} games, {gamble_bot.lost_money} coins")
+                e.add_field(name="Drew", value=f"{gamble_bot.draw} games, {gamble_bot.draw_lost_money} coins")
+                await message.channel.send("", embed=e)
+            if args[0] == "bj" or args[0] == "blackjack":
+                blackjack_bot = next((b for b in self.bots if isinstance(b, BlackjackBot)), None)
+                if blackjack_bot is None:
+                    return
+                e = discord.Embed(title='Blackjack Stats')
+                e.add_field(name="Won", value=str(blackjack_bot.total_won))
+                e.add_field(name="Lost", value=str(blackjack_bot.total_lost))
+                e.add_field(name="Outcomes", value="; ".join(f"{k}: {v}" for k, v in blackjack_bot.outcomes.items()))
                 await message.channel.send("", embed=e)
 
     async def on_message_edit(self, before, after):

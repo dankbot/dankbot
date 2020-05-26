@@ -30,13 +30,17 @@ class BlackjackBot(ActivatableSimpleBot):
         self.game_writer = open("tmp/games.txt", "a+")
 
         self.outcomes = OrderedDict()
-        for t in ["won", "won_busted","won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied"]:
+        for t in ["won", "won_busted","won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied", "timeout"]:
             self.outcomes[t] = 0
-        self.money_won = 0
+        self.total_won = 0
+        self.total_lost = 0
 
     def end_game(self, outcome, money_outcome):
         self.outcomes[outcome] += 1
-        self.money_won += money_outcome
+        if money_outcome >= 0:
+            self.total_won += money_outcome
+        else:
+            self.total_lost -= money_outcome
         dict = {
             "outcome": outcome,
             "money_outcome": money_outcome,
@@ -66,6 +70,9 @@ class BlackjackBot(ActivatableSimpleBot):
             if message.content == "e":
                 self.current_game[-1]["decision"] = "exit"
         await super().on_self_message(message)
+
+    def on_timeout(self):
+        self.end_game(0, "timeout")
 
     @staticmethod
     def parse_cards(str):
