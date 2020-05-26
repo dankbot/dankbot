@@ -36,6 +36,7 @@ class BlackjackBot(ActivatableSimpleBot):
         self.total_lost = 0
 
     def end_game(self, outcome, money_outcome):
+        self.bot.gambler.on_gamble_complete(money_outcome)
         self.outcomes[outcome] += 1
         if money_outcome >= 0:
             self.total_won += money_outcome
@@ -52,7 +53,8 @@ class BlackjackBot(ActivatableSimpleBot):
         self.current_game = []
 
     async def send_command(self):
-        self.bot.typer.send_message(self.bot.get_prefixed_cmd("bj 100"))
+        amount = self.bot.gambler.on_gamble_start()
+        self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"bj {amount}"))
 
     def is_activation_command(self, message):
         return message.content.startswith(self.bot.get_prefixed_cmd("bj "))
