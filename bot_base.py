@@ -68,7 +68,7 @@ class SimpleBot(BotBase):
         self.cooldown.on_send()
         self.reset_timeout()
         await self.send_command()
-        next_try_in = self.bot.config["retry_on_timeout_s"]
+        next_try_in = CooldownHelper.get_cooldown_with_jitter(min(self.cooldown.base, self.bot.config["retry_on_timeout_s"]))
         while True:
             remaining = self.execution_timeout - time.time()
             if remaining < 0.05:
