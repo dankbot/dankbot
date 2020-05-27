@@ -66,7 +66,8 @@ class MemeBot(ActivatableSimpleBot):
 
         r = MemeBot.P_MEME_LOST_LAPTOP.match(message.content)
         if r:
-            # sad, maybe autobuy
+            # consider the cost of the laptop as money lost
+            self.bot.inventory.add_coins(-1500, "meme")
             return True
 
         if MemeBot.P_NO_ITEM.match(message.content):
