@@ -50,7 +50,9 @@ class EventBot(BotBase):
                 text = filter_ascii(r.group(1))
                 if can_just_type:
                     self.start_send_spam(text, 1)
-                await self.bot.send_notify("event in " + message.channel.mention + ": `" + text + "`")
+                if self.bot.config["event_notify"]:
+                    await self.bot.notify_channel_event.wait()
+                    await self.bot.notify_channel.send("boss event in " + message.channel.mention + ": `" + text + "`")
 
             r = EventBot.P_TYPE_BOSS.match(message.content)
             if r:
@@ -59,7 +61,9 @@ class EventBot(BotBase):
                 text = filter_ascii(r.group(1))
                 if can_just_type:
                     self.start_send_spam(text, 10)
-                await self.bot.send_notify("boss event in " + message.channel.mention + ": `" + text + "`")
+                if self.bot.config["event_notify"]:
+                    await self.bot.notify_channel_event.wait()
+                    await self.bot.notify_channel.send("boss event in " + message.channel.mention + ": `" + text + "`")
 
     def start_send_spam(self, msg, cnt):
         self.spam_msg = msg
