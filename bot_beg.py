@@ -19,8 +19,6 @@ class BegBot(ActivatableSimpleBot):
         return message.content == self.bot.get_prefixed_cmd("beg")
 
     async def process_bot_message(self, message):
-        self.cooldown.process_bot_message(message, self.cooldown_txt)
-
         r = BegBot.P_REPLY_NORMAL.match(message.content)
         if r and get_mention_user_id(r.group(2)) == self.bot.owner_id:
             self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "beg")
