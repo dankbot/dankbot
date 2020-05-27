@@ -2,6 +2,7 @@ import discord
 import logging
 from asyncio import Lock, Event
 
+from bot_autodep import AutoDepBot
 from bot_blackjack import BlackjackBot
 from typer import MessageTyper
 from inventory import InventoryTracker
@@ -65,7 +66,11 @@ class TheBot(discord.Client):
         if message.content.startswith("plz ") and (message.author.id == self.notify_id or message.author.id == self.owner_id):
             args = message.content[4:].split(" ")
             if args[0] == "wallet":
-                await message.channel.send(f"u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})")
+                str = f"u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
+                autodep_bot = next((b for b in self.bots if isinstance(b, AutoDepBot)), None)
+                if autodep_bot is not None:
+                    str += f"; will dep at {autodep_bot.threshold}"
+                await message.channel.send(str)
             if args[0] == "grind":
                 e = discord.Embed(title='Grinded stuff')
                 e.add_field(name="Coins", value=str(self.inventory.total_grinded))
