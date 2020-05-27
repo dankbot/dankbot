@@ -9,6 +9,7 @@ from collections import OrderedDict
 class BlackjackBot(ActivatableSimpleBot):
     GAME_OPTIONS_HINT = "What do you want to do?\nType `h` to **hit**, type `s` to **stand**, or type `e` to **end** the game."
     GAME_OPTIONS_HINT2 = "Type `h` to **hit**, type `s` to **stand**, or type `e` to **end** the game."
+    GAME_NOT_ENOUGH_MONEY = re.compile(f"^You only have [0-9,]+ coins, dont try and lie to me hoe\\." + P_EOL)
     GAME_WON = re.compile(f"^\\*\\*You win! You have [0-9]*, Dealer has [0-9]*\\.\\*\\* \nYou won \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_WON_BUSTED = re.compile(f"\\*\\*You win! Your opponent busted!\\*\\* \nYou won \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
     GAME_WON_21 = re.compile(f"\\*\\*You win! You have 21!\\*\\* \nYou won \\*\\*([0-9,]+)\\*\\* coins\\. You now have [0-9,]+\\." + P_EOL)
@@ -104,6 +105,9 @@ class BlackjackBot(ActivatableSimpleBot):
     async def process_bot_message(self, message):
         if BlackjackBot.GAME_END.match(message.content):
             self.end_game("end", -self.stake//2)
+            return True
+        if BlackjackBot.GAME_NOT_ENOUGH_MONEY.match(message.content):
+            self.current_game = []
             return True
 
         if message.content not in ["", BlackjackBot.GAME_OPTIONS_HINT, BlackjackBot.GAME_OPTIONS_HINT2]:

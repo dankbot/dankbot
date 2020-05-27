@@ -34,7 +34,7 @@ class AutoDepBot(ActivatableSimpleBot, InventoryTrackerListener):
         self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"dep {dep_cnt}"))
 
     def should_reschedule(self):
-        return self.get_dep_amount() > 0
+        return self.bot.inventory.total_coins >= self.threshold
 
     def is_activation_command(self, message):
         return message.content.startswith(self.bot.get_prefixed_cmd("dep "))
