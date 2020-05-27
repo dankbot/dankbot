@@ -8,9 +8,10 @@ import logging
 
 
 class MessageTyper:
-    def __init__(self, url):
+    def __init__(self, profile_id, url):
         self.msgq = Queue()
         self.thread = Thread(target=self._thread)
+        self.profile_id = profile_id
         self.url = url
 
     def start(self):
@@ -27,7 +28,7 @@ class MessageTyper:
 
     def _thread(self):
         options = webdriver.ChromeOptions()
-        options.add_argument("user-data-dir=profiles/theBot")
+        options.add_argument("user-data-dir=profiles/" + self.profile_id)
 
         driver = webdriver.Chrome(options=options)
         driver.get(self.url)

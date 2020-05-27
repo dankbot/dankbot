@@ -17,7 +17,7 @@ class TheBot(discord.Client):
         self.owner_id = config["owner_id"]
         self.notify_id = config["notify_id"]
         self.exclusive_lock = Lock()
-        self.typer = MessageTyper(config["type_url"])
+        self.typer = MessageTyper(config["profile_id"], config["type_url"])
         self.inventory = InventoryTracker()
         self.notify_channel = None
         self.notify_channel_event = Event()
