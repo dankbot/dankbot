@@ -23,7 +23,7 @@ class SearchBot(ActivatableSimpleBot):
     async def on_self_message(self, message):
         if self.is_activation_command(message):
             self.area_searched = None
-        if self.is_active(message.channel.id):
+        if self.activation.is_active(message.channel.id):
             self.area_searched = message.content.upper()
         await super().on_self_message(message)
 

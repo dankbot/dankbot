@@ -29,7 +29,7 @@ class MemeBot(ActivatableSimpleBot):
     async def on_self_message(self, message):
         if self.is_activation_command(message):
             self.sent_meme_type = False
-        if self.is_active(message.channel.id):
+        if self.activation.is_active(message.channel.id):
             self.sent_meme_type = True
         await super().on_self_message(message)
 

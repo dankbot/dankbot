@@ -81,14 +81,13 @@ class SimpleBot(BotBase):
         pass
 
 
-class ActivatableSimpleBot(SimpleBot):
-    def __init__(self, bot, name, cooldown_txt):
-        super().__init__(bot, name, cooldown_txt)
+class ActivationHelper:
+    def __init__(self, bot):
+        self.bot = bot
         self.active_on_channel = None
         self.active_time = None
 
-    def reset_timeout(self):
-        super().reset_timeout()
+    def reset_activation_timeout(self):
         if self.active_time is not None:
             self.active_time = time.time()
 
@@ -101,21 +100,36 @@ class ActivatableSimpleBot(SimpleBot):
             return True
         return False
 
+    def on_activated(self, channel_id):
+        self.active_on_channel = channel_id
+        self.active_time = time.time()
+
+    def on_processed(self):
+        self.active_on_channel = None
+        self.active_time = None
+
+
+class ActivatableSimpleBot(SimpleBot):
+    def __init__(self, bot, name, cooldown_txt):
+        super().__init__(bot, name, cooldown_txt)
+        self.activation = ActivationHelper(bot)
+
+    def reset_timeout(self):
+        super().reset_timeout()
+        self.activation.reset_activation_timeout()
+
     async def on_bot_message(self, message):
-        if self.is_active(message.channel.id):
+        if self.activation.is_active(message.channel.id):
             if self.cooldown.process_bot_message(message, self.cooldown_txt):
-                self.active_on_channel = None
-                self.active_time = None
+                self.activation.on_processed()
                 return
             if await self.process_bot_message(message):
-                self.active_on_channel = None
-                self.active_time = None
+                self.activation.on_processed()
                 self.cooldown.on_executed()
 
     async def on_self_message(self, message):
         if self.is_activation_command(message):
-            self.active_on_channel = message.channel.id
-            self.active_time = time.time()
+            self.activation.on_activated(message.channel.id)
 
     async def process_bot_message(self, message):
         pass
