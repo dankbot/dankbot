@@ -50,7 +50,7 @@ class AutoDepBot(ActivatableSimpleBot, InventoryTrackerListener):
 
         r = AutoDepBot.P_REPLY_OK.match(message.content)
         if r:
-            self.bot.inventory.total_coins -= parse_bot_int(r.group(1))
+            self.bot.inventory.total_coins = max(self.bot.inventory.total_coins - parse_bot_int(r.group(1)), 0)
             return True
 
         return False
