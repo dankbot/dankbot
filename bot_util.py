@@ -9,7 +9,7 @@ P_MENTION_EXTRACT = re.compile("<@!?([0-9]+)>")
 
 P_NON_ASCII = re.compile("[^\x20-\x7e]")
 
-P_HINT = re.compile("(?:\n\n|$)\\*\\*Handy Dandy Tip\\*\\*: .*$")
+P_HINT = re.compile("(?:\n\n|^)\\*\\*Handy Dandy Tip\\*\\*: .*$")
 
 
 def get_mention_user_id(txt):
