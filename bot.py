@@ -42,7 +42,7 @@ class TheBot(discord.Client):
     async def send_notify(self, msg):
         self.log.info(f"Sending notification: {msg}")
         await self.notify_channel_event.wait()
-        await self.notify_channel.send(f"<@!{self.notify_id}> {msg}")
+        await self.notify_channel.send(f"<@!{self.notify_id}> (<@{self.owner_id}>) {msg}")
 
     async def on_ready(self):
         self.log.info(f"Logged on as {self.user}")
@@ -93,27 +93,31 @@ class TheBot(discord.Client):
 
             args = message.content[4:].split(" ")
             if args[0] == "wallet":
-                str = f"u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
+                our_user = self.get_user(self.owner_id)
+                s = f"{our_user}, u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
                 autodep_bot = next((b for b in self.bots if isinstance(b, AutoDepBot)), None)
                 if autodep_bot is not None:
-                    str += f"; will dep at {autodep_bot.threshold}"
-                await message.channel.send(str)
+                    s += f"; will dep at {autodep_bot.threshold}"
+                await message.channel.send(s)
             if args[0] == "grind":
-                e = discord.Embed(title='Grinded stuff')
+                our_user = self.get_user(self.owner_id)
+                e = discord.Embed(title=our_user.name + '\'s grind stats')
                 e.add_field(name="Coins", value=str(self.inventory.total_grinded))
                 inv = "; ".join(f"{k}: {v}" for k, v in self.inventory.items.items())
                 if inv != "":
                     e.add_field(name="Inventory", value=inv)
                 await message.channel.send("", embed=e)
             if args[0] == "stat" or args[0] == "stats":
-                e = discord.Embed(title='The Stats')
+                our_user = self.get_user(self.owner_id)
+                e = discord.Embed(title=our_user.name + '\'s stats')
                 e.add_field(name="Coins", value="; ".join(f"{k}: {v}" for k, v in self.inventory.coins_stats.items()))
                 await message.channel.send("", embed=e)
             if args[0] == "gamble":
                 gamble_bot = next((b for b in self.bots if isinstance(b, GambleBot)), None)
                 if gamble_bot is None:
                     return
-                e = discord.Embed(title='Gamble Stats')
+                our_user = self.get_user(self.owner_id)
+                e = discord.Embed(title=our_user.name + '\'s gamble stats')
                 e.add_field(name="Won", value=f"{gamble_bot.won} games, {gamble_bot.won_money} coins")
                 e.add_field(name="Lost", value=f"{gamble_bot.lost} games, {gamble_bot.lost_money} coins")
                 e.add_field(name="Drew", value=f"{gamble_bot.draw} games, {gamble_bot.draw_lost_money} coins")
@@ -122,7 +126,8 @@ class TheBot(discord.Client):
                 blackjack_bot = next((b for b in self.bots if isinstance(b, BlackjackBot)), None)
                 if blackjack_bot is None:
                     return
-                e = discord.Embed(title='Blackjack Stats')
+                our_user = self.get_user(self.owner_id)
+                e = discord.Embed(title=our_user.name + '\'s blackjack stats')
                 e.add_field(name="Won", value=str(blackjack_bot.total_won))
                 e.add_field(name="Lost", value=str(blackjack_bot.total_lost))
                 e.add_field(name="Outcomes", value="; ".join(f"{k}: {v}" for k, v in blackjack_bot.outcomes.items()))
@@ -137,7 +142,9 @@ class TheBot(discord.Client):
                 invfetch_bot.queue_run(0)
                 await invfetch_bot.result_event.wait()
                 if invfetch_bot.inventory is not None:
-                    await message.channel.send("; ".join(f"{k}: {v}" for [k, v] in invfetch_bot.inventory))
+                    our_user = self.get_user(self.owner_id)
+                    inv_str = "; ".join(f"{k}: {v}" for [k, v] in invfetch_bot.inventory)
+                    await message.channel.send(our_user.name + "'s inventory: " + inv_str)
                 else:
                     await message.channel.send("couldn't fetch inventory, probably memer memed on us")
             if args[0] == "transfer" and len(args) >= 2:
