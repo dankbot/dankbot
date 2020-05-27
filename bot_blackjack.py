@@ -50,6 +50,7 @@ class BlackjackBot(ActivatableSimpleBot):
         self.game_writer.write('\n')
         self.game_writer.flush()
         self.current_game = []
+        self.bot.inventory.add_coins(money_outcome, "blackjack")
 
     async def send_command(self):
         self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"bj 100"))

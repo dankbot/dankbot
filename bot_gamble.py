@@ -35,18 +35,21 @@ class GambleBot(ActivatableSimpleBot):
         if r:
             self.won += 1
             self.won_money += parse_bot_int(r.group(1))
+            self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "gamble")
             return True
 
         r = GambleBot.GAME_LOST.match(message.embeds[0].description)
         if r:
             self.lost += 1
             self.lost_money += parse_bot_int(r.group(1))
+            self.bot.inventory.add_coins(-parse_bot_int(r.group(1)), "gamble")
             return True
 
         r = GambleBot.GAME_TIE.match(message.embeds[0].description)
         if r:
             self.draw += 1
             self.draw_lost_money += parse_bot_int(r.group(1))
+            self.bot.inventory.add_coins(-parse_bot_int(r.group(1)), "gamble")
             return True
 
         return False
