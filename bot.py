@@ -2,6 +2,8 @@ import discord
 import logging
 from asyncio import Lock, Event
 
+from bot_transfer import TransferBot
+from bot_util import *
 from bot_autodep import AutoDepBot
 from bot_blackjack import BlackjackBot
 from bot_invfetch import InvFetchBot
@@ -66,6 +68,27 @@ class TheBot(discord.Client):
                 await b.on_bot_message(message)
 
         if message.content.startswith("plz ") and (message.author.id == self.notify_id or message.author.id == self.owner_id):
+            def parse_item_list(arr):
+                items = []
+                for s in " ".join(arr).split(";"):
+                    s = s.strip()
+                    if s == "":
+                        continue
+                    if s[0].isdigit():
+                        cnt, _, what = s.partition(" ")
+                    elif s[-1].isdigit():
+                        what, _, cnt = s.rpartition(" ")
+                        if what.endswith(":"):
+                            what = what[:-1]
+                    else:
+                        continue
+                    what = what.strip()
+                    cnt = cnt.strip()
+                    if what == "" or cnt == "":
+                        continue
+                    items.append((what, int(cnt)))
+                return items
+
             args = message.content[4:].split(" ")
             if args[0] == "wallet":
                 str = f"u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
@@ -115,6 +138,22 @@ class TheBot(discord.Client):
                     await message.channel.send("; ".join(f"{k}: {v}" for [k, v] in invfetch_bot.inventory))
                 else:
                     await message.channel.send("couldn't fetch inventory, probably memer memed on us")
+            if args[0] == "transfer" and len(args) >= 2:
+                transfer_bot = next((b for b in self.bots if isinstance(b, TransferBot)), None)
+                if transfer_bot is None:
+                    await message.channel.send("you disabled that bot, idiot")
+                    return
+                who = get_mention_user_id(args[1])
+                list = parse_item_list(args[2:])
+                await message.channel.send("list of items to transfer: " + "; ".join(f"{k}: {v}" for [k, v] in list))
+                msg = await message.channel.send("i am just preparing for this...")
+
+                for i, (what, cnt) in enumerate(list):
+                    await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
+                    if not await transfer_bot.add(what, cnt, f"<@{who}>"):
+                        await message.channel.send(f"failed to give {what} {cnt}")
+                await msg.edit(content=f"done i think?")
+
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:
