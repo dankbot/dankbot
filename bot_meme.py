@@ -11,7 +11,7 @@ class MemeBot(ActivatableSimpleBot):
     P_MEME_TRENDING = re.compile(f"^Your meme is \\*\\*__TRENDING__\\*\\* with \\*\\*[0-9,]+ karma\\*\\*. You get ([0-9,]+) coins, niceeee meme bro" + P_EOL)
     P_MEME_TRENDING_ITEM = re.compile(f"Your meme is \\*\\*__TRENDING__\\*\\* with \\*\\*[0-9,]+ karma\\*\\*. You get ([0-9,]+) coins, also a fan of your memes sent you ([0-9,]+) {P_SHOP_ICON} \\*\\*({P_SHOP_NAME})\\*\\*" + P_EOL)
     P_MEME_HATE = re.compile(f"^Everyone \\*\\*hates\\*\\* your meme, and it ended up with \\*\\*-[0-9,]+ karma\\*\\*. You get 0 coins lol sucks to be you" + P_EOL)
-    P_MEME_LOST_LAPTOP = re.compile(f"^Everyone \\*\\*hates\\*\\* your meme, and it ended up with \\*\\*-[0-9,]+ karma\\*\\*. You get 0 coins AND now your :laptop: \\*\\*Laptop\\*\\* is broken lmao" + P_EOL)
+    P_MEME_LOST_LAPTOP = re.compile(f"^Everyone \\*\\*hates\\*\\* your meme, and it ended up with \\*\\*-[0-9,]+ karma\\*\\*. You get 0 coins AND now your <:laptop:573151773565386819> \\*\\*Laptop\\*\\* is broken lmao" + P_EOL)
     P_MEME_FAIL_OPT = re.compile("^That's not an option my friend" + P_EOL)
     COOLDOWN_TXT = "If you post memes too much, you look like a normie. Wait "
 
