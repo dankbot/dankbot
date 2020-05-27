@@ -1,6 +1,5 @@
 import logging
 import sys
-from config import config
 from bot import TheBot
 from bot_beg import BegBot
 from bot_search import SearchBot
@@ -14,6 +13,12 @@ from bot_autodep import AutoDepBot
 from bot_invfetch import InvFetchBot
 from bot_transfer import TransferBot
 from bot_give import GiveBot
+
+if len(sys.argv) != 2:
+    print("main.py <config path>")
+    exit(1)
+
+exec(open(sys.argv[1]).read())
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(name)s %(message)s', stream=sys.stdout)
 logging.getLogger("bot").setLevel(logging.DEBUG)
