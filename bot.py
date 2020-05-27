@@ -49,7 +49,8 @@ class TheBot(discord.Client):
         if not self.started_bots:
             self.started_bots = True
             for b in self.bots:
-                b.queue_run(0)
+                if b.auto_queue:
+                    b.queue_run(0)
 
     async def on_message(self, message):
         if message.channel.id == self.config["type_channel_id"]:
