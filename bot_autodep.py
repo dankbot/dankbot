@@ -8,10 +8,9 @@ import re
 class AutoDepBot(ActivatableSimpleBot, InventoryTrackerListener):
     P_REPLY_OK = re.compile("^([0-9,]+) coins deposited\\." + P_EOL)
     P_REPLY_BAD_VALUE = re.compile("^Your argument should be either a number and no more than what you have in your wallet \\(([0-9,]+)\\), or `max`" + P_EOL)
-    COOLDOWN_TXT = "You'll be able to use this command again in "
 
     def __init__(self, bot):
-        super().__init__(bot, "dep", AutoDepBot.COOLDOWN_TXT)
+        super().__init__(bot, "dep", None)
         self.activation = ActivationHelper(bot)
         self.exclusive_run = True
         self.auto_queue = False
@@ -32,7 +31,6 @@ class AutoDepBot(ActivatableSimpleBot, InventoryTrackerListener):
         if dep_cnt <= 0:
             self.cooldown.on_executed()
             return
-        self.cooldown.on_send()
         self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"dep {dep_cnt}"))
 
     def should_reschedule(self):

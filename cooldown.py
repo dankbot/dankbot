@@ -5,6 +5,7 @@ from asyncio import Event
 
 class CooldownHelper:
     COOLDOWN_TITLES = ["Slow it down, cmon", "Woah now, slow it down"]
+    COOLDOWN_TXT_GENERIC = ["You'll be able to use this command again in ", "This command can be used again in "]
 
     def __init__(self, cooldown_base):
         self.known_cooldown = None
@@ -40,8 +41,14 @@ class CooldownHelper:
 
     @staticmethod
     def extract_cooldown(msg, cdown_txt):
+        if cdown_txt is None:
+            for t in CooldownHelper.COOLDOWN_TXT_GENERIC:
+                c = CooldownHelper.extract_cooldown(msg, t)
+                if c is not None:
+                    return c
+            return None
         if len(msg.embeds) != 1:
-            return
+            return None
         e = msg.embeds[0]
         if e.title in CooldownHelper.COOLDOWN_TITLES and e.description.startswith(cdown_txt + " **"):
             c = e.description[len(cdown_txt + " **"):]
