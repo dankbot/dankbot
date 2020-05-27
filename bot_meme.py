@@ -41,6 +41,10 @@ class MemeBot(ActivatableSimpleBot):
         if r:
             return True
 
+        if MemeBot.P_NO_ITEM.match(message.content):
+            await self.bot.send_notify(f"prob get a laptop dude")
+            return True
+
         if not self.sent_meme_type:
             return False
 
@@ -68,10 +72,6 @@ class MemeBot(ActivatableSimpleBot):
         if r:
             # consider the cost of the laptop as money lost
             self.bot.inventory.add_coins(-1500, "meme")
-            return True
-
-        if MemeBot.P_NO_ITEM.match(message.content):
-            await self.bot.send_notify(f"prob get a laptop dude")
             return True
 
         return False
