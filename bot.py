@@ -4,6 +4,7 @@ from asyncio import Lock, Event
 
 from bot_autodep import AutoDepBot
 from bot_blackjack import BlackjackBot
+from bot_invfetch import InvFetchBot
 from typer import MessageTyper
 from inventory import InventoryTracker
 from bot_gamble import GambleBot
@@ -101,6 +102,19 @@ class TheBot(discord.Client):
                 e.add_field(name="Lost", value=str(blackjack_bot.total_lost))
                 e.add_field(name="Outcomes", value="; ".join(f"{k}: {v}" for k, v in blackjack_bot.outcomes.items()))
                 await message.channel.send("", embed=e)
+            if args[0] == "invfetch":
+                invfetch_bot = next((b for b in self.bots if isinstance(b, InvFetchBot)), None)
+                if invfetch_bot is None:
+                    await message.channel.send("you disabled that bot, idiot")
+                    return
+                await message.channel.send("k give me a second")
+                invfetch_bot.result_event.clear()
+                invfetch_bot.queue_run(0)
+                await invfetch_bot.result_event.wait()
+                if invfetch_bot.inventory is not None:
+                    await message.channel.send("; ".join(f"{k}: {v}" for [k, v] in invfetch_bot.inventory))
+                else:
+                    await message.channel.send("couldn't fetch inventory, probably memer memed on us")
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:
