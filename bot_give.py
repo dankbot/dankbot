@@ -5,7 +5,7 @@ import re
 
 class GiveBot(SimpleTaskBot):
     P_NOT_ENOUGH = re.compile("^You only have [0-9,]+ coins, you can't share that many" + P_EOL)
-    P_SUCCESS = re.compile(f"^You gave .+ \*\*([0-9]+)\*\* coins after a [0-9,]% tax rate, now you have [0-9,]+ and they've got [0-9,]+" + P_EOL)
+    P_SUCCESS = re.compile(f"^You gave .+ \*\*([0-9,]+)\*\* coins after a [0-9,]% tax rate, now you have [0-9,]+ and they've got [0-9,]+" + P_EOL)
     P_ITEM = re.compile(f"^{P_SHOP_ICON} ?\\*\\*({P_SHOP_NAME})\\*\\* ─ ([0-9,]+)$", re.M)
 
     def __init__(self, bot):
