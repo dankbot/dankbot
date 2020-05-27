@@ -1,3 +1,5 @@
+from discord import Embed
+
 from bot_base import BotBase
 from bot_util import *
 from asyncio import Event
@@ -7,7 +9,7 @@ import re
 
 class InvFetchBot(BotBase):
     P_FOOTER = re.compile("^Owned Items ─ Page ([0-9]+) of ([0-9]+)$")
-    P_ITEM = re.compile(f"^{P_SHOP_ICON} \\*\\*({P_SHOP_NAME})\\*\\* ─ ([0-9,]+)$", re.M)
+    P_ITEM = re.compile(f"^{P_SHOP_ICON} ?\\*\\*({P_SHOP_NAME})\\*\\* ─ ([0-9,]+)$", re.M)
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -44,14 +46,20 @@ class InvFetchBot(BotBase):
         if len(e.fields) != 1 or e.fields[0].name != "Owned Items":
             return
 
-        r = InvFetchBot.P_FOOTER.match(e.footer.text)
-        if not r:
-            return
-        page = int(r.group(1))
+        if e.footer.text is not Embed.Empty:
+            r = InvFetchBot.P_FOOTER.match(e.footer.text)
+            if not r:
+                return
+            page = int(r.group(1))
+            total_pages = int(r.group(2))
+        else:
+            page = 1
+            total_pages = 1
         if page != self.page:
             return
+        self.total_pages = total_pages
 
-        self.total_pages = int(r.group(2))
+        print(e.fields[0].value)
         for r in InvFetchBot.P_ITEM.finditer(e.fields[0].value):
             self.inventory.append((r.group(1), parse_bot_int(r.group(2))))
         self.page_recv_event.set()
