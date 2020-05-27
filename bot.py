@@ -2,6 +2,7 @@ import discord
 import logging
 from asyncio import Lock, Event
 
+from bot_give import GiveBot
 from bot_transfer import TransferBot
 from bot_util import *
 from bot_autodep import AutoDepBot
@@ -153,6 +154,27 @@ class TheBot(discord.Client):
                     await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
                     if not await transfer_bot.add(what, cnt, f"<@{who}>"):
                         await message.channel.send(f"failed to give {what} {cnt}")
+                await msg.edit(content=f"done i think?")
+            if (args[0] == "slowgive" or args[0] == "sgive") and len(args) >= 2:
+                give_bot = next((b for b in self.bots if isinstance(b, GiveBot)), None)
+                if give_bot is None:
+                    await message.channel.send("you disabled that bot, idiot")
+                    return
+                who = get_mention_user_id(args[1])
+                money = int(args[2])
+
+                max_transfer = 10000
+                transfer_cnt = (money + max_transfer - 1) // max_transfer
+                msg = await message.channel.send(f"i am just preparing for this... ({transfer_cnt} transfers needed)")
+                transfer_i = 0
+                while money > 0:
+                    transfer_i += 1
+                    transfer_amount = min(money, max_transfer)
+                    await msg.edit(content=f"`({transfer_i}/{transfer_cnt})  GIVE {transfer_amount} ({money} remaining)`")
+                    if not await give_bot.add(transfer_amount, f"<@{who}>"):
+                        await message.channel.send(f"we failed somehow, sad and pitiful")
+                        break
+                    money -= transfer_amount
                 await msg.edit(content=f"done i think?")
 
 
