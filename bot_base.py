@@ -82,8 +82,12 @@ class SimpleBot(BotBase):
                 break
             except asyncio.TimeoutError:
                 pass
-        self.log.info(f"Rescheduled in {next_try_in}s")
-        self.queue_run(next_try_in)
+        if self.should_reschedule():
+            self.log.info(f"Rescheduled in {next_try_in}s")
+            self.queue_run(next_try_in)
+
+    def should_reschedule(self):
+        return True
 
     def on_timeout(self):
         pass

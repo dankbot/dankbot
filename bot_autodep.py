@@ -1,12 +1,11 @@
-from bot_base import ManualActivatableBot, ActivationHelper
+from bot_base import ActivatableSimpleBot, ActivationHelper
 from bot_util import *
 from inventory import InventoryTrackerListener
-import asyncio
 import random
 import re
 
 
-class AutoDepBot(ManualActivatableBot, InventoryTrackerListener):
+class AutoDepBot(ActivatableSimpleBot, InventoryTrackerListener):
     P_REPLY_OK = re.compile("^([0-9,]+) coins deposited\\." + P_EOL)
     P_REPLY_BAD_VALUE = re.compile("^Your argument should be either a number and no more than what you have in your wallet \\(([0-9,]+)\\), or `max`" + P_EOL)
     COOLDOWN_TXT = "You'll be able to use this command again in "
@@ -24,19 +23,20 @@ class AutoDepBot(ManualActivatableBot, InventoryTrackerListener):
         self.result_max = self.bot.config["autodep_result"][1]
         self.bot.inventory.listeners.append(self)
 
-    async def run(self):
-        use_cooldown = False
-        while True:
-            bring_to = random.randint(self.result_min, self.result_max)
-            dep_cnt = self.bot.inventory.total_coins - bring_to
-            if dep_cnt <= 0:
-                break
-            if use_cooldown:
-                await asyncio.sleep(self.cooldown.get_next_try_in())
-            self.cooldown.on_send()
-            self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"dep {dep_cnt}"))
-            await self.cooldown.wait()
-            use_cooldown = True
+    def get_dep_amount(self):
+        bring_to = random.randint(self.result_min, self.result_max)
+        return self.bot.inventory.total_coins - bring_to
+
+    async def send_command(self):
+        dep_cnt = self.get_dep_amount()
+        if dep_cnt <= 0:
+            self.cooldown.on_executed()
+            return
+        self.cooldown.on_send()
+        self.bot.typer.send_message(self.bot.get_prefixed_cmd(f"dep {dep_cnt}"))
+
+    def should_reschedule(self):
+        return self.get_dep_amount() > 0
 
     def is_activation_command(self, message):
         return message.content.startswith(self.bot.get_prefixed_cmd("dep "))
