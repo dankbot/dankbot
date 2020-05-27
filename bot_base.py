@@ -183,3 +183,60 @@ class ManualActivatableBot(BotBase):
 
     def is_activation_command(self, message):
         return False
+
+
+class SimpleTaskBot(ActivatableSimpleBot):
+    def __init__(self, bot, name, cooldown_txt):
+        super().__init__(bot, name, cooldown_txt)
+        self.auto_queue = False
+        self.exclusive_run = True
+        self.current_lock = asyncio.Lock()
+        self.current_event = asyncio.Event()
+        self.current_task = None
+        self.current_result = None
+        self.last_execute_time = 0
+
+    async def run(self):
+        await super().run()
+        self.last_execute_time = time.time()
+
+    async def send_command(self):
+        if self.current_task is None:
+            self.cooldown.on_executed()
+            return
+        self.send_task_command(self.current_task)
+
+    async def execute(self, params):
+        async with self.current_lock:
+            self.current_task = params
+            self.current_event.clear()
+            self.current_result = None
+
+            if not self.already_queued and self.run_completed:
+                self.queue_run(max(self.last_execute_time + self.cooldown.base - time.time() + 0.1, 0))
+            await self.current_event.wait()
+            r = self.current_result
+            self.current_result = None
+            return r
+
+    def should_reschedule(self):
+        return self.current_task is not None
+
+    async def process_bot_message(self, message):
+        if self.current_task is None:
+            return False
+
+        r = await self.process_task_bot_message(self.current_task, message)
+        if r is not None:
+            self.current_task = None
+            self.current_result = r
+            self.current_event.set()
+            return True
+
+        return False
+
+    def send_task_command(self, task):
+        pass
+
+    async def process_task_bot_message(self, task, message):
+        return False
