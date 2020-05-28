@@ -62,10 +62,10 @@ class TheBot(discord.Client):
             for e in message.embeds:
                 self.log.info(f"Embed {e.title}: {e.description}")
         if message.author.id == self.user_id:
-            message.content = filter_out_hint(message.content)
             for b in self.bots:
                 await b.on_self_message(message)
         if message.author.id == self.config["bot_id"]:
+            message.content = filter_out_hint(message.content)
             for b in self.bots:
                 await b.on_bot_message(message)
 
