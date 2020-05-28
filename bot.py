@@ -19,8 +19,8 @@ class TheBot(discord.Client):
         self.config = config
         self.log = logging.getLogger("bot")
         self.bots = []
+        self.user_id = config["user_id"]
         self.owner_id = config["owner_id"]
-        self.notify_id = config["notify_id"]
         self.exclusive_lock = Lock()
         self.typer = MessageTyper(config["profile_id"], config["type_url"])
         self.inventory = InventoryTracker()
@@ -42,7 +42,7 @@ class TheBot(discord.Client):
     async def send_notify(self, msg):
         self.log.info(f"Sending notification: {msg}")
         await self.notify_channel_event.wait()
-        await self.notify_channel.send(f"<@!{self.notify_id}> (<@{self.owner_id}>) {msg}")
+        await self.notify_channel.send(f"<@!{self.owner_id}> (<@{self.user_id}>) {msg}")
 
     async def on_ready(self):
         self.log.info(f"Logged on as {self.user}")
@@ -61,7 +61,7 @@ class TheBot(discord.Client):
             self.log.info(f"Message from {message.author}: {message.content}")
             for e in message.embeds:
                 self.log.info(f"Embed {e.title}: {e.description}")
-        if message.author.id == self.owner_id:
+        if message.author.id == self.user_id:
             message.content = filter_out_hint(message.content)
             for b in self.bots:
                 await b.on_self_message(message)
@@ -69,7 +69,7 @@ class TheBot(discord.Client):
             for b in self.bots:
                 await b.on_bot_message(message)
 
-        if message.content.startswith("plz ") and (message.author.id == self.notify_id or message.author.id == self.owner_id):
+        if message.content.startswith("plz ") and (message.author.id == self.user_id or message.author.id == self.owner_id):
             def parse_item_list(arr):
                 items = []
                 for s in " ".join(arr).split(";"):
@@ -93,14 +93,14 @@ class TheBot(discord.Client):
 
             args = message.content[4:].split(" ")
             if args[0] == "wallet":
-                our_user = self.get_user(self.owner_id)
+                our_user = self.get_user(self.user_id)
                 s = f"{our_user}, u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
                 autodep_bot = next((b for b in self.bots if isinstance(b, AutoDepBot)), None)
                 if autodep_bot is not None:
                     s += f"; will dep at {autodep_bot.threshold}"
                 await message.channel.send(s)
             if args[0] == "grind":
-                our_user = self.get_user(self.owner_id)
+                our_user = self.get_user(self.user_id)
                 e = discord.Embed(title=our_user.name + '\'s grind stats')
                 e.add_field(name="Coins", value=str(self.inventory.total_grinded))
                 inv = "; ".join(f"{k}: {v}" for k, v in self.inventory.items.items())
@@ -108,7 +108,7 @@ class TheBot(discord.Client):
                     e.add_field(name="Inventory", value=inv)
                 await message.channel.send("", embed=e)
             if args[0] == "stat" or args[0] == "stats":
-                our_user = self.get_user(self.owner_id)
+                our_user = self.get_user(self.user_id)
                 e = discord.Embed(title=our_user.name + '\'s stats')
                 e.add_field(name="Coins", value="; ".join(f"{k}: {v}" for k, v in self.inventory.coins_stats.items()))
                 await message.channel.send("", embed=e)
@@ -116,7 +116,7 @@ class TheBot(discord.Client):
                 gamble_bot = next((b for b in self.bots if isinstance(b, GambleBot)), None)
                 if gamble_bot is None:
                     return
-                our_user = self.get_user(self.owner_id)
+                our_user = self.get_user(self.user_id)
                 e = discord.Embed(title=our_user.name + '\'s gamble stats')
                 e.add_field(name="Won", value=f"{gamble_bot.won} games, {gamble_bot.won_money} coins")
                 e.add_field(name="Lost", value=f"{gamble_bot.lost} games, {gamble_bot.lost_money} coins")
@@ -126,7 +126,7 @@ class TheBot(discord.Client):
                 blackjack_bot = next((b for b in self.bots if isinstance(b, BlackjackBot)), None)
                 if blackjack_bot is None:
                     return
-                our_user = self.get_user(self.owner_id)
+                our_user = self.get_user(self.user_id)
                 e = discord.Embed(title=our_user.name + '\'s blackjack stats')
                 e.add_field(name="Won", value=str(blackjack_bot.total_won))
                 e.add_field(name="Lost", value=str(blackjack_bot.total_lost))
@@ -142,7 +142,7 @@ class TheBot(discord.Client):
                 invfetch_bot.queue_run(0)
                 await invfetch_bot.result_event.wait()
                 if invfetch_bot.inventory is not None:
-                    our_user = self.get_user(self.owner_id)
+                    our_user = self.get_user(self.user_id)
                     inv_str = "; ".join(f"{k}: {v}" for [k, v] in invfetch_bot.inventory)
                     await message.channel.send(our_user.name + "'s inventory: " + inv_str)
                 else:

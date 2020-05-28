@@ -20,7 +20,7 @@ class BegBot(ActivatableSimpleBot):
 
     async def process_bot_message(self, message):
         r = BegBot.P_REPLY_NORMAL.match(message.content)
-        if r and get_mention_user_id(r.group(2)) == self.bot.owner_id:
+        if r and get_mention_user_id(r.group(2)) == self.bot.user_id:
             self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "beg")
             return True
 
