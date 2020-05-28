@@ -5,7 +5,7 @@ import re
 
 class TransferBot(SimpleTaskBot):
     P_LIMIT = re.compile("^Slow down cowpoke, this person can't have more than [0-9,]+ of that. They already have [0-9,]+" + P_EOL)
-    P_SUCCESS = re.compile(f"^You gave .+ \*\*([0-9,]+)\*\* {P_SHOP_NAME}, now you have [0-9,]+ and they've got [0-9,]+" + P_EOL)
+    P_SUCCESS = re.compile(f"^You gave .+ \\*\\*([0-9,]+)\\*\\* {P_SHOP_NAME}, now you have [0-9,]+ and they've got [0-9,]+" + P_EOL)
     P_ITEM = re.compile(f"^{P_SHOP_ICON} ?\\*\\*({P_SHOP_NAME})\\*\\* ─ ([0-9,]+)$", re.M)
 
     def __init__(self, bot):
