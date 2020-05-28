@@ -40,7 +40,7 @@ class InvFetchBot(BotBase):
             return
 
         e = message.embeds[0]
-        our_user = self.bot.get_user(self.bot.owner_id)
+        our_user = self.bot.get_user(self.bot.user_id)
         if e.author.name != our_user.name + "'s inventory":
             return
         if len(e.fields) != 1 or e.fields[0].name != "Owned Items":

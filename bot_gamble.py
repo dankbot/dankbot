@@ -27,7 +27,7 @@ class GambleBot(ActivatableSimpleBot):
         if message.content != "" or len(message.embeds) != 1:
             return False
 
-        our_user = self.bot.get_user(self.bot.owner_id)
+        our_user = self.bot.get_user(self.bot.user_id)
         if message.embeds[0].author.name != our_user.name + "'s gambling game":
             return False
 

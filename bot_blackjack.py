@@ -116,7 +116,7 @@ class BlackjackBot(ActivatableSimpleBot):
             return False
 
         e = message.embeds[0]
-        our_user = self.bot.get_user(self.bot.owner_id)
+        our_user = self.bot.get_user(self.bot.user_id)
         if e.author.name != our_user.name + "'s blackjack game":
             return False
 

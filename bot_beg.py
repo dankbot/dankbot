@@ -25,7 +25,7 @@ class BegBot(ActivatableSimpleBot):
             return True
 
         r = BegBot.P_REPLY_ITEM.match(message.content)
-        if r and get_mention_user_id(r.group(2)) == self.bot.owner_id:
+        if r and get_mention_user_id(r.group(2)) == self.bot.user_id:
             self.bot.inventory.add_coins(parse_bot_int(r.group(1)), "beg")
             self.bot.inventory.add_item(r.group(3), 1, "beg")
             return True
