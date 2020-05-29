@@ -5,6 +5,7 @@ from cmd_meme import PostMemeHandler
 from cmd_search import SearchHandler
 from cmd_inv import InventoryHandler
 from cmd_gift import GiftHandler
+from cmd_give import GiveHandler
 
 
 class BotCommandExecutor:
@@ -17,6 +18,7 @@ class BotCommandExecutor:
         self.search_handler = SearchHandler(bot)
         self.inv_handler = InventoryHandler(bot)
         self.gift_handler = GiftHandler(bot)
+        self.give_handler = GiveHandler(bot)
 
     async def run_simple(self, handler, *args):
         while True:
@@ -70,3 +72,6 @@ class BotCommandExecutor:
 
     async def gift(self, what, count, who):
         return await self.run_simple(self.gift_handler, what, count, who)
+
+    async def give(self, count, who):
+        return await self.run_simple(self.give_handler, count, who)

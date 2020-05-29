@@ -139,6 +139,23 @@ class TheBot(discord.Client):
                     if not (await self.cmd.gift(what, cnt, f"<@!{who}>")).transferred:
                         await message.channel.send(f"failed to give {what} {cnt}")
                 await msg.edit(content=f"done i think?")
+            if (args[0] == "slowgive" or args[0] == "sgive") and len(args) >= 2:
+                who = get_mention_user_id(args[1])
+                money = int(args[2])
+
+                max_transfer = 10000
+                transfer_cnt = (money + max_transfer - 1) // max_transfer
+                msg = await message.channel.send(f"i am just preparing for this... ({transfer_cnt} transfers needed)")
+                transfer_i = 0
+                while money > 0:
+                    transfer_i += 1
+                    transfer_amount = min(money, max_transfer)
+                    await msg.edit(content=f"`({transfer_i}/{transfer_cnt})  GIVE {transfer_amount} ({money} remaining)`")
+                    if not (await self.cmd.give(transfer_amount, f"<@!{who}>")).transferred:
+                        await message.channel.send(f"we failed somehow, sad and pitiful")
+                        break
+                    money -= transfer_amount
+                await msg.edit(content=f"done i think?")
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:
