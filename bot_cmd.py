@@ -3,6 +3,7 @@ from cmd_fish import FishHandler
 from cmd_hunt import HuntHandler
 from cmd_meme import PostMemeHandler
 from cmd_search import SearchHandler
+from cmd_inv import InventoryHandler
 
 
 class BotCommandExecutor:
@@ -13,11 +14,12 @@ class BotCommandExecutor:
         self.hunt_handler = HuntHandler(bot)
         self.meme_handler = PostMemeHandler(bot)
         self.search_handler = SearchHandler(bot)
+        self.inv_handler = InventoryHandler(bot)
 
-    async def run_simple(self, handler):
+    async def run_simple(self, handler, *args):
         while True:
             b = await handler.new_execution()
-            b.send_command()
+            b.send_command(*args)
             await b
             if b.was_executed:
                 return b
@@ -51,3 +53,15 @@ class BotCommandExecutor:
             await b
             if b.was_executed:
                 return b
+
+    async def inventory(self, page):
+        return await self.run_simple(self.inv_handler, page)
+
+    async def fetch_inventory(self):
+        page1 = await self.inventory(1)
+        assert page1.page == 1 and page1.total_pages < 10
+        items = page1.items
+        for p in range(2, page1.total_pages + 1):
+            page = await self.inventory(p)
+            items = items + page.items
+        return items

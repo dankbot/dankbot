@@ -13,14 +13,16 @@ class BaseExecutionHandler:
         self.execution_factory = None
         self.execution_lock = asyncio.Lock()
         self.has_pending_execution = False
-        self.cooldown = CooldownHelper(bot.config["cooldown"][name])
+        self.cooldown = CooldownHelper(bot.config["cooldown"][name] if name in bot.config["cooldown"] else 10)
+        self.no_cooldown = False
         bot.cmd_handlers.append(self)
 
     async def new_execution(self, no_lock=False):
         if not no_lock:
             await self.execution_lock.acquire()
         self.has_pending_execution = True
-        await asyncio.sleep(self.cooldown.get_wait_time())
+        if not self.no_cooldown:
+            await asyncio.sleep(self.cooldown.get_wait_time())
         self.has_pending_execution = False
         if self.execution is not None:  # sorry, we lost to something
             return self.new_execution(True)
@@ -95,7 +97,7 @@ class BaseExecution:
 
     def dispatch_user_message(self, message):
         is_activation = False
-        if message.content == self.request_command or self.request_command is None and not self.active:
+        if (message.content == self.request_command or self.request_command is None) and not self.active:
             self.active = True
             self.bump_timeout()
             is_activation = True
@@ -111,7 +113,7 @@ class BaseExecution:
     async def dispatch_bot_message(self, message):
         if self.active:
             c = CooldownHelper.extract_cooldown(message, self.cooldown_text)
-            if c:
+            if c and not self.handler.no_cooldown:
                 self.handler.cooldown.override_cooldown(c)
                 self.on_completed()
             elif await self.on_bot_message(message):

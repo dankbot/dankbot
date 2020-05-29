@@ -123,7 +123,11 @@ class TheBot(discord.Client):
             if args[0] == "search":
                 r = await self.cmd.search_with_preferences()
                 await message.channel.send(str(r))
-
+            if args[0] == "invfetch":
+                r = await self.cmd.fetch_inventory()
+                inv_str = "; ".join(f"{k}: {v}" for [k, v] in r)
+                our_user = self.get_user(self.user_id)
+                await message.channel.send(our_user.name + "'s inventory: " + inv_str)
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:
@@ -133,4 +137,5 @@ class TheBot(discord.Client):
         if after.author.id == self.config["bot_id"]:
             for b in self.bots:
                 await b.on_bot_message_edit(after)
+
 
