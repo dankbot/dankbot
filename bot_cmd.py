@@ -6,6 +6,7 @@ from cmd_search import SearchHandler
 from cmd_inv import InventoryHandler
 from cmd_gift import GiftHandler
 from cmd_give import GiveHandler
+from cmd_dep import DepositHandler
 
 
 class BotCommandExecutor:
@@ -19,6 +20,7 @@ class BotCommandExecutor:
         self.inv_handler = InventoryHandler(bot)
         self.gift_handler = GiftHandler(bot)
         self.give_handler = GiveHandler(bot)
+        self.dep_handler = DepositHandler(bot)
 
     async def run_simple(self, handler, *args):
         while True:
@@ -75,3 +77,6 @@ class BotCommandExecutor:
 
     async def give(self, count, who):
         return await self.run_simple(self.give_handler, count, who)
+
+    async def deposit(self, amount):
+        return await self.run_simple(self.dep_handler, amount)

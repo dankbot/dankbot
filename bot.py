@@ -123,6 +123,9 @@ class TheBot(discord.Client):
             if args[0] == "search":
                 r = await self.cmd.search_with_preferences()
                 await message.channel.send(str(r))
+            if args[0] == "dep":
+                r = await self.cmd.deposit(int(args[1]))
+                await message.channel.send(str(r))
             if args[0] == "invfetch":
                 r = await self.cmd.fetch_inventory()
                 inv_str = "; ".join(f"{k}: {v}" for [k, v] in r)
