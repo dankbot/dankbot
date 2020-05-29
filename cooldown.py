@@ -1,6 +1,5 @@
 import time
 import random
-from asyncio import Event
 
 
 class CooldownHelper:
@@ -10,34 +9,18 @@ class CooldownHelper:
     def __init__(self, cooldown_base):
         self.known_cooldown = None
         self.base = cooldown_base
-        self.done_event = Event()
 
-    def get_next_try_in(self):
-        try_in = self.base
+    def get_wait_time(self):
         if self.known_cooldown is not None:
-            try_in = min(self.known_cooldown - time.time(), try_in)
-        return CooldownHelper.get_cooldown_with_jitter(try_in)
+            r = self.known_cooldown - time.time()
+            if r > 0:
+                return CooldownHelper.get_cooldown_with_jitter(r)
+        return 0
 
-    def on_send(self):
-        self.done_event.clear()
-
-    async def wait(self):
-        await self.done_event.wait()
-
-    def on_executed(self):
-        self.known_cooldown = None
-        self.done_event.set()
-
-    def override_cooldown(self, time_from_now):
+    def override_cooldown(self, time_from_now=None):
+        if time_from_now is None:
+            time_from_now = self.base
         self.known_cooldown = time.time() + time_from_now
-
-    def process_bot_message(self, message, cooldown_txt):
-        c = CooldownHelper.extract_cooldown(message, cooldown_txt)
-        if c is not None:
-            self.known_cooldown = time.time() + c
-            self.done_event.set()
-            return True
-        return False
 
     @staticmethod
     def extract_cooldown(msg, cdown_txt):
@@ -59,8 +42,8 @@ class CooldownHelper:
     @staticmethod
     def get_cooldown_with_jitter(cooldown):
         if cooldown >= 30:
-            return random.uniform(cooldown - 4, cooldown + 10)
+            return random.uniform(cooldown + 0.1, cooldown + 10)
         if cooldown >= 10:
-            return random.uniform(cooldown - 2, cooldown + 5)
-        return max(random.uniform(cooldown - 0.1, cooldown + 1), 0.5)
+            return random.uniform(cooldown + 0.1, cooldown + 5)
+        return max(random.uniform(cooldown + 0.1, cooldown + 1), 0.5)
 

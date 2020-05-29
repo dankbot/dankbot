@@ -2,15 +2,11 @@ import discord
 import logging
 from asyncio import Lock, Event
 
-from bot_give import GiveBot
-from bot_transfer import TransferBot
-from bot_util import *
-from bot_autodep import AutoDepBot
-from bot_blackjack import BlackjackBot
-from bot_invfetch import InvFetchBot
+from cmd_util import *
 from typer import MessageTyper
 from inventory import InventoryTracker
-from bot_gamble import GambleBot
+
+from bot_cmd import BotCommandExecutor
 
 
 class TheBot(discord.Client):
@@ -19,6 +15,7 @@ class TheBot(discord.Client):
         self.config = config
         self.log = logging.getLogger("bot")
         self.bots = []
+        self.cmd_handlers = []
         self.user_id = config["user_id"]
         self.owner_id = config["owner_id"]
         self.exclusive_lock = Lock()
@@ -28,6 +25,8 @@ class TheBot(discord.Client):
         self.notify_channel_event = Event()
         self.typer.start()
         self.started_bots = False
+
+        self.cmd = BotCommandExecutor(self)
 
     def add_bot(self, bot):
         self.bots.append(bot)
@@ -62,11 +61,11 @@ class TheBot(discord.Client):
             for e in message.embeds:
                 self.log.info(f"Embed {e.title}: {e.description}")
         if message.author.id == self.user_id:
-            for b in self.bots:
-                await b.on_self_message(message)
+            for b in self.cmd_handlers:
+                b.on_user_message(message)
         if message.author.id == self.config["bot_id"]:
             message.content = filter_out_hint(message.content)
-            for b in self.bots:
+            for b in self.cmd_handlers:
                 await b.on_bot_message(message)
 
         if message.content.startswith("plz ") and (message.author.id == self.user_id or message.author.id == self.owner_id):
@@ -95,9 +94,6 @@ class TheBot(discord.Client):
             if args[0] == "wallet":
                 our_user = self.get_user(self.user_id)
                 s = f"{our_user}, u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
-                autodep_bot = next((b for b in self.bots if isinstance(b, AutoDepBot)), None)
-                if autodep_bot is not None:
-                    s += f"; will dep at {autodep_bot.threshold}"
                 await message.channel.send(s)
             if args[0] == "grind":
                 our_user = self.get_user(self.user_id)
@@ -112,77 +108,21 @@ class TheBot(discord.Client):
                 e = discord.Embed(title=our_user.name + '\'s stats')
                 e.add_field(name="Coins", value="; ".join(f"{k}: {v}" for k, v in self.inventory.coins_stats.items()))
                 await message.channel.send("", embed=e)
-            if args[0] == "gamble":
-                gamble_bot = next((b for b in self.bots if isinstance(b, GambleBot)), None)
-                if gamble_bot is None:
-                    return
-                our_user = self.get_user(self.user_id)
-                e = discord.Embed(title=our_user.name + '\'s gamble stats')
-                e.add_field(name="Won", value=f"{gamble_bot.won} games, {gamble_bot.won_money} coins")
-                e.add_field(name="Lost", value=f"{gamble_bot.lost} games, {gamble_bot.lost_money} coins")
-                e.add_field(name="Drew", value=f"{gamble_bot.draw} games, {gamble_bot.draw_lost_money} coins")
-                await message.channel.send("", embed=e)
-            if args[0] == "bj" or args[0] == "blackjack":
-                blackjack_bot = next((b for b in self.bots if isinstance(b, BlackjackBot)), None)
-                if blackjack_bot is None:
-                    return
-                our_user = self.get_user(self.user_id)
-                e = discord.Embed(title=our_user.name + '\'s blackjack stats')
-                e.add_field(name="Won", value=str(blackjack_bot.total_won))
-                e.add_field(name="Lost", value=str(blackjack_bot.total_lost))
-                e.add_field(name="Outcomes", value="; ".join(f"{k}: {v}" for k, v in blackjack_bot.outcomes.items()))
-                await message.channel.send("", embed=e)
-            if args[0] == "invfetch":
-                invfetch_bot = next((b for b in self.bots if isinstance(b, InvFetchBot)), None)
-                if invfetch_bot is None:
-                    await message.channel.send("you disabled that bot, idiot")
-                    return
-                await message.channel.send("k give me a second")
-                invfetch_bot.result_event.clear()
-                invfetch_bot.queue_run(0)
-                await invfetch_bot.result_event.wait()
-                if invfetch_bot.inventory is not None:
-                    our_user = self.get_user(self.user_id)
-                    inv_str = "; ".join(f"{k}: {v}" for [k, v] in invfetch_bot.inventory)
-                    await message.channel.send(our_user.name + "'s inventory: " + inv_str)
-                else:
-                    await message.channel.send("couldn't fetch inventory, probably memer memed on us")
-            if args[0] == "transfer" and len(args) >= 2:
-                transfer_bot = next((b for b in self.bots if isinstance(b, TransferBot)), None)
-                if transfer_bot is None:
-                    await message.channel.send("you disabled that bot, idiot")
-                    return
-                who = get_mention_user_id(args[1])
-                list = parse_item_list(args[2:])
-                await message.channel.send("list of items to transfer: " + "; ".join(f"{k}: {v}" for [k, v] in list))
-                msg = await message.channel.send("i am just preparing for this...")
-
-                for i, (what, cnt) in enumerate(list):
-                    await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
-                    if not await transfer_bot.add(what, cnt, f"<@{who}>"):
-                        await message.channel.send(f"failed to give {what} {cnt}")
-                await msg.edit(content=f"done i think?")
-            if (args[0] == "slowgive" or args[0] == "sgive") and len(args) >= 2:
-                give_bot = next((b for b in self.bots if isinstance(b, GiveBot)), None)
-                if give_bot is None:
-                    await message.channel.send("you disabled that bot, idiot")
-                    return
-                who = get_mention_user_id(args[1])
-                money = int(args[2])
-
-                max_transfer = 10000
-                transfer_cnt = (money + max_transfer - 1) // max_transfer
-                msg = await message.channel.send(f"i am just preparing for this... ({transfer_cnt} transfers needed)")
-                transfer_i = 0
-                while money > 0:
-                    transfer_i += 1
-                    transfer_amount = min(money, max_transfer)
-                    await msg.edit(content=f"`({transfer_i}/{transfer_cnt})  GIVE {transfer_amount} ({money} remaining)`")
-                    if not await give_bot.add(transfer_amount, f"<@{who}>"):
-                        await message.channel.send(f"we failed somehow, sad and pitiful")
-                        break
-                    money -= transfer_amount
-                await msg.edit(content=f"done i think?")
+            if args[0] == "beg":
+                r = await self.cmd.beg()
+                await message.channel.send(str(r))
+            if args[0] == "fish":
+                r = await self.cmd.fish()
+                await message.channel.send(str(r))
+            if args[0] == "hunt":
+                r = await self.cmd.hunt()
+                await message.channel.send(str(r))
+            if args[0] == "pm":
+                r = await self.cmd.post_meme()
+                await message.channel.send(str(r))
+            if args[0] == "search":
+                r = await self.cmd.search_with_preferences()
+                await message.channel.send(str(r))
 
 
     async def on_message_edit(self, before, after):
