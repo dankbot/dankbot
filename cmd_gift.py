@@ -4,7 +4,7 @@ import re
 
 
 class GiftExecution(BaseExecution):
-    T_USAGE = "awho tf are you giving coins to lmao, `gift <amount> <item> <@user or user id>` is how you use this"
+    T_USAGE = "who tf are you giving coins to lmao, `gift <amount> <item> <@user or user id>` is how you use this"
     T_YOURSELF = "yeah you're a bit of an idiot, you can't share items with yourself"
     P_LIMIT = re.compile("^Slow down cowpoke, this person can't have more than [0-9,]+ of that. They already have [0-9,]+" + P_EOL)
     P_SUCCESS = re.compile(f"^You gave .+ \\*\\*([0-9,]+)\\*\\* {P_SHOP_NAME}, now you have [0-9,]+ and they've got [0-9,]+" + P_EOL)
