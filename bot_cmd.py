@@ -4,6 +4,7 @@ from cmd_hunt import HuntHandler
 from cmd_meme import PostMemeHandler
 from cmd_search import SearchHandler
 from cmd_inv import InventoryHandler
+from cmd_gift import GiftHandler
 
 
 class BotCommandExecutor:
@@ -15,6 +16,7 @@ class BotCommandExecutor:
         self.meme_handler = PostMemeHandler(bot)
         self.search_handler = SearchHandler(bot)
         self.inv_handler = InventoryHandler(bot)
+        self.gift_handler = GiftHandler(bot)
 
     async def run_simple(self, handler, *args):
         while True:
@@ -65,3 +67,6 @@ class BotCommandExecutor:
             page = await self.inventory(p)
             items = items + page.items
         return items
+
+    async def gift(self, what, count, who):
+        return await self.run_simple(self.gift_handler, what, count, who)
