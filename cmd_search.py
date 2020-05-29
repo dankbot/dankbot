@@ -67,6 +67,7 @@ class SearchHandler(BaseExecutionHandler):
     def __init__(self, bot):
         super().__init__(bot, "search")
         self.execution_factory = lambda: SearchExecution(self)
+        self.requires_exclusivity = True
 
     def is_activation_command(self, message):
         return message.content == self.bot.get_prefixed_cmd("search")

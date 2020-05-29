@@ -1,6 +1,7 @@
 import discord
 import logging
-from asyncio import Lock, Event
+from asyncio import Semaphore, Event
+import asyncio_rw_lock
 
 from cmd_util import *
 from typer import MessageTyper
@@ -18,7 +19,7 @@ class TheBot(discord.Client):
         self.cmd_handlers = []
         self.user_id = config["user_id"]
         self.owner_id = config["owner_id"]
-        self.exclusive_lock = Lock()
+        self.exclusive_lock = asyncio_rw_lock.FifoLock()
         self.typer = MessageTyper(config["profile_id"], config["type_url"])
         self.inventory = InventoryTracker()
         self.notify_channel = None

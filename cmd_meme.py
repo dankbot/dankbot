@@ -96,6 +96,7 @@ class PostMemeHandler(BaseExecutionHandler):
     def __init__(self, bot):
         super().__init__(bot, "meme")
         self.execution_factory = lambda: PostMemeExecution(self)
+        self.requires_exclusivity = True
 
     def is_activation_command(self, message):
         return message.content == self.bot.get_prefixed_cmd("pm")

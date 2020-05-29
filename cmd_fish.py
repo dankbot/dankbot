@@ -63,6 +63,7 @@ class FishHandler(BaseExecutionHandler):
     def __init__(self, bot):
         super().__init__(bot, "fish")
         self.execution_factory = lambda: FishExecution(self)
+        self.requires_exclusivity = True
 
     def is_activation_command(self, message):
         return message.content == self.bot.get_prefixed_cmd("fish")

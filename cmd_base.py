@@ -15,10 +15,15 @@ class BaseExecutionHandler:
         self.has_pending_execution = False
         self.cooldown = CooldownHelper(bot.config["cooldown"][name] if name in bot.config["cooldown"] else 10)
         self.no_cooldown = False
+        self.requires_exclusivity = False
         bot.cmd_handlers.append(self)
 
     async def new_execution(self, no_lock=False):
         if not no_lock:
+            if self.requires_exclusivity:
+                await self.bot.exclusive_lock.acquire_write()
+            else:
+                await self.bot.exclusive_lock.acquire_read()
             await self.execution_lock.acquire()
         self.has_pending_execution = True
         if not self.no_cooldown:
@@ -35,6 +40,10 @@ class BaseExecutionHandler:
         self.execution = None
         if self.execution_lock.locked():
             self.execution_lock.release()
+            if self.requires_exclusivity:
+                self.bot.exclusive_lock.release_write()
+            else:
+                self.bot.exclusive_lock.release_read()
 
     def on_user_message(self, message):
         if self.execution is None and self.is_activation_command(message):
