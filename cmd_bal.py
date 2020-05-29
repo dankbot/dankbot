@@ -12,7 +12,6 @@ class BalanceExecution(BaseExecution):
         self.account_name = None
         self.wallet = 0
         self.bank = 0
-        self.success = False
 
     def send_command(self, whose=None):
         self.send_activation_message_as_user(self.bot.get_prefixed_cmd(f"bal {whose}" if whose is not None else "bal"))
