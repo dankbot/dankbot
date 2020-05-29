@@ -128,6 +128,17 @@ class TheBot(discord.Client):
                 inv_str = "; ".join(f"{k}: {v}" for [k, v] in r)
                 our_user = self.get_user(self.user_id)
                 await message.channel.send(our_user.name + "'s inventory: " + inv_str)
+            if args[0] == "transfer" and len(args) >= 2:
+                who = get_mention_user_id(args[1])
+                list = parse_item_list(args[2:])
+                await message.channel.send("list of items to transfer: " + "; ".join(f"{k}: {v}" for [k, v] in list))
+                msg = await message.channel.send("i am just preparing for this...")
+
+                for i, (what, cnt) in enumerate(list):
+                    await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
+                    if not (await self.cmd.gift(what, cnt, f"<@!{who}>")).transferred:
+                        await message.channel.send(f"failed to give {what} {cnt}")
+                await msg.edit(content=f"done i think?")
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:

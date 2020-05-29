@@ -75,14 +75,17 @@ class BaseExecution:
         while not self.completion_future.done():
             timeout = self.expiry - time.time()
             if timeout <= 0:
+                self.handler.log.info("Execution timed out")
                 self.on_completed()
                 return
             try:
-                await asyncio.wait_for(self.completion_future, timeout)
+                self.handler.log.info(f"handle_timeout: {timeout}")
+                await asyncio.wait([self.completion_future], timeout=timeout)
             except asyncio.TimeoutError:
                 pass
 
     def bump_timeout(self):
+        self.handler.log.info("Timeout bumped")
         self.expiry = max(time.time() + self.handler.bot.config["max_reply_s"], self.expiry)
 
     def send_message_as_user(self, text):
@@ -106,6 +109,7 @@ class BaseExecution:
 
     def on_completed(self):
         assert(self.handler.execution is self)
+        self.handler.log.info("Execution completed")
         self.active = False
         self.handler.on_execution_completed()
         self.completion_future.set_result(True)
@@ -113,7 +117,8 @@ class BaseExecution:
     async def dispatch_bot_message(self, message):
         if self.active:
             c = CooldownHelper.extract_cooldown(message, self.cooldown_text)
-            if c and not self.handler.no_cooldown:
+            if c is not None and not self.handler.no_cooldown:
+                self.handler.log.info(f"Cooldown: {c}")
                 self.handler.cooldown.override_cooldown(c)
                 self.on_completed()
             elif await self.on_bot_message(message):
