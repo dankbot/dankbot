@@ -42,8 +42,8 @@ class CooldownHelper:
     @staticmethod
     def get_cooldown_with_jitter(cooldown):
         if cooldown >= 30:
-            return random.uniform(cooldown + 0.1, cooldown + 10)
+            return random.uniform(cooldown + 1, cooldown + 10)
         if cooldown >= 10:
-            return random.uniform(cooldown + 0.1, cooldown + 5)
-        return max(random.uniform(cooldown + 0.1, cooldown + 1), 0.5)
+            return random.uniform(cooldown + 0.5, cooldown + 5)
+        return max(random.uniform(cooldown + 0.2, cooldown + 1), 0.5)
 
