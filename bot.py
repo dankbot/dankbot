@@ -2,6 +2,7 @@ import discord
 import logging
 from asyncio import Event
 import asyncio_rw_lock
+from bot_event import EventBot
 
 from cmd_util import *
 from typer import MessageTyper
@@ -30,6 +31,7 @@ class TheBot(discord.Client):
 
         self.cmd = BotCommandExecutor(self)
         self.auto = AutoBot(self)
+        self.event_bot = EventBot(self)
 
     def add_bot(self, bot):
         self.bots.append(bot)
@@ -64,10 +66,12 @@ class TheBot(discord.Client):
         if message.author.id == self.user_id:
             for b in self.cmd_handlers:
                 b.on_user_message(message)
+            await self.event_bot.on_user_message(message)
         if message.author.id == self.config["bot_id"]:
             message.content = filter_out_hint(message.content)
             for b in self.cmd_handlers:
                 await b.on_bot_message(message)
+            await self.event_bot.on_bot_message(message)
 
         if message.content.startswith("plz ") and (message.author.id == self.user_id or message.author.id == self.owner_id):
             def parse_item_list(arr):
@@ -173,7 +177,6 @@ class TheBot(discord.Client):
             for e in after.embeds:
                 self.log.info(f"Embed {e.title}: {e.description}")
         if after.author.id == self.config["bot_id"]:
-            for b in self.bots:
-                await b.on_bot_message_edit(after)
+            await self.event_bot.on_bot_message_edit(after)
 
 
