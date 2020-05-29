@@ -1,6 +1,6 @@
 import discord
 import logging
-from asyncio import Semaphore, Event
+from asyncio import Event
 import asyncio_rw_lock
 
 from cmd_util import *
@@ -8,6 +8,7 @@ from typer import MessageTyper
 from inventory import InventoryTracker
 
 from bot_cmd import BotCommandExecutor
+from bot_auto import AutoBot
 
 
 class TheBot(discord.Client):
@@ -28,6 +29,7 @@ class TheBot(discord.Client):
         self.started_bots = False
 
         self.cmd = BotCommandExecutor(self)
+        self.auto = AutoBot(self)
 
     def add_bot(self, bot):
         self.bots.append(bot)
@@ -52,9 +54,7 @@ class TheBot(discord.Client):
 
         if not self.started_bots:
             self.started_bots = True
-            for b in self.bots:
-                if b.auto_queue:
-                    b.queue_run(0)
+            self.auto.start()
 
     async def on_message(self, message):
         if message.channel.id == self.config["type_channel_id"]:
