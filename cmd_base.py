@@ -12,6 +12,7 @@ class BaseExecutionHandler:
         self.execution = None
         self.execution_factory = None
         self.execution_lock = asyncio.Lock()
+        self.exclusive_lock_taken = False
         self.has_pending_execution = False
         self.cooldown = CooldownHelper(bot.config["cooldown"][name] if name in bot.config["cooldown"] else 10)
         self.no_cooldown = False
@@ -20,10 +21,6 @@ class BaseExecutionHandler:
 
     async def new_execution(self, no_lock=False):
         if not no_lock:
-            if self.requires_exclusivity:
-                await self.bot.exclusive_lock.acquire_write()
-            else:
-                await self.bot.exclusive_lock.acquire_read()
             await self.execution_lock.acquire()
         self.has_pending_execution = True
         if not self.no_cooldown:
@@ -31,6 +28,11 @@ class BaseExecutionHandler:
         self.has_pending_execution = False
         if self.execution is not None:  # sorry, we lost to something
             return self.new_execution(True)
+        if self.requires_exclusivity:
+            await self.bot.exclusive_lock.acquire_write()
+        else:
+            await self.bot.exclusive_lock.acquire_read()
+        self.exclusive_lock_taken = True
         self.execution = self.execution_factory()
         asyncio.create_task(self.execution.handle_timeout())
         return self.execution
@@ -40,6 +42,8 @@ class BaseExecutionHandler:
         self.execution = None
         if self.execution_lock.locked():
             self.execution_lock.release()
+        if self.exclusive_lock_taken:
+            self.exclusive_lock_taken = False
             if self.requires_exclusivity:
                 self.bot.exclusive_lock.release_write()
             else:
