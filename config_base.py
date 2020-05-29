@@ -7,9 +7,12 @@ cooldown_normal = {
     "gamble": 10,
     "blackjack": 10,
     "dep": 10,
+    "withdraw": 10,
     "gift": 20,
     "give": 20,
-    "steal": 30
+    "steal": 30,
+    "use": 5,
+    "balance": 1
 }
 cooldown_donator = {
     "beg": 25,
@@ -20,9 +23,12 @@ cooldown_donator = {
     "gamble": 5,
     "blackjack": 5,
     "dep": 0.5,
+    "withdraw": 0.5,
     "gift": 10,
     "give": 10,
-    "steal": 10
+    "steal": 10,
+    "use": 4,
+    "balance": 0.5
 }
 
 config = {
