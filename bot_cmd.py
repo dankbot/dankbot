@@ -7,6 +7,7 @@ from cmd_inv import InventoryHandler
 from cmd_gift import GiftHandler
 from cmd_give import GiveHandler
 from cmd_dep import DepositHandler
+from cmd_withdraw import WithdrawHandler
 
 
 class BotCommandExecutor:
@@ -21,6 +22,7 @@ class BotCommandExecutor:
         self.gift_handler = GiftHandler(bot)
         self.give_handler = GiveHandler(bot)
         self.dep_handler = DepositHandler(bot)
+        self.withdraw_handler = WithdrawHandler(bot)
 
     async def run_simple(self, handler, *args):
         while True:
@@ -80,3 +82,6 @@ class BotCommandExecutor:
 
     async def deposit(self, amount):
         return await self.run_simple(self.dep_handler, amount)
+
+    async def withdraw(self, amount):
+        return await self.run_simple(self.withdraw_handler, amount)

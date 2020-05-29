@@ -6,8 +6,8 @@ import re
 class DepositExecution(BaseExecution):
     T_USAGE = "what are you depositing, idiot"
     T_INVALID_NUMBER = "Needs to be a whole number greater than 0"
-    P_NOT_ENOUGH = re.compile("Your argument should be either a number and no more than what you have in your wallet (-?[0-9,]+), or `max`" + P_EOL)
-    P_LIMIT = re.compile("You can only hold \\*\\*[0-9,]+\\*\\* coins in your bank right now. To hold more, use currency commands and level up more." + P_EOL)
+    P_NOT_ENOUGH = re.compile("^Your argument should be either a number and no more than what you have in your wallet \\(-?[0-9,]+\\), or `max`" + P_EOL)
+    P_LIMIT = re.compile("^You can only hold \\*\\*[0-9,]+\\*\\* coins in your bank right now. To hold more, use currency commands and level up more." + P_EOL)
     P_SUCCESS = re.compile(f"^\\*\\*([0-9,]+)\\*\\* coins deposited" + P_EOL)
     P_SUCCESS2 = re.compile(f"^([0-9,]+) coins deposited." + P_EOL)
 
