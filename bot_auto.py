@@ -1,4 +1,6 @@
 import asyncio
+import logging
+
 from inventory import AsyncTotalListener
 import random
 
@@ -6,6 +8,7 @@ import random
 class AutoBot:
     def __init__(self, bot):
         self.bot = bot
+        self.log = logging.getLogger("bot.auto")
 
     def start(self):
         asyncio.create_task(self.auto_beg())
@@ -50,6 +53,7 @@ class AutoBot:
             return
 
         threshold = random.randint(threshold_min, threshold_max)
+        self.log.info(f"Will auto-dep at {threshold}")
 
         l = AsyncTotalListener()
         self.bot.inventory.total_listeners.append(l)
@@ -61,6 +65,7 @@ class AutoBot:
             if b.wallet > threshold:
                 threshold = random.randint(threshold_min, threshold_max)
                 amount = b.wallet - random.randint(result_min, result_max)
+                self.log.info(f"Next auto-dep threshold is {threshold}")
                 if amount <= 0:
                     continue
 
@@ -70,6 +75,8 @@ class AutoBot:
                     if v >= result_min and v <= result_max:
                         amount = v
                         break
+
+                self.log.info(f"Auto-depositing {amount} coins")
 
                 if mode == "dep":
                     await self.bot.cmd.deposit(amount)
