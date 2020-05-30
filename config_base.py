@@ -36,11 +36,9 @@ config = {
     "max_reply_s": 10,
     "retry_on_timeout_s": 10,
     "search_preference": ["tree", "couch", "mailbox", "dresser", "discord", "bed", "attic", "laundromat", "grass", "shoe"],
-    "autogive_enabled": False,
-    "autogive_threshold": 3000,
-
-    "autodep_threshold": [4000, 8000],  # TODO: add back
-    "autodep_result": [1000, 3500],  # TODO: add back
+    "autodep_mode": "dep",
+    "autodep_threshold": (2000, 8000),
+    "autodep_result": (800, 1600),
 
     # memer
     "bot_id": 270904126974590976,

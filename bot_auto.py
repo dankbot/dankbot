@@ -1,4 +1,6 @@
 import asyncio
+from inventory import AsyncTotalListener
+import random
 
 
 class AutoBot:
@@ -11,8 +13,9 @@ class AutoBot:
         asyncio.create_task(self.auto_fish())
         asyncio.create_task(self.auto_hunt())
         asyncio.create_task(self.auto_meme())
-        if self.bot.config["autogive_enabled"]:
-            asyncio.create_task(self.auto_give())
+        asyncio.create_task(self.auto_gamble())
+        asyncio.create_task(self.auto_dep())
+        pass
 
     async def auto_beg(self):
         while True:
@@ -34,14 +37,43 @@ class AutoBot:
         while True:
             await self.bot.cmd.post_meme()
 
-    async def auto_give(self):
-        threshold = self.bot.config["autogive_threshold"]
-        acc_id = self.bot.config["autogive_account_id"]
-        if self.bot.user_id == acc_id:
-            return
+    async def auto_gamble(self):
         while True:
+            await self.bot.cmd.gamble(100)
+
+    async def auto_dep(self):
+        mode = self.bot.config["autodep_mode"]
+        threshold_min, threshold_max = self.bot.config["autodep_threshold"]
+        result_min, result_max = self.bot.config["autodep_result"]
+
+        if mode not in ["give", "dep"]:
+            return
+
+        threshold = random.randint(threshold_min, threshold_max)
+
+        l = AsyncTotalListener()
+        self.bot.inventory.total_listeners.append(l)
+        while True:
+            await l.wait_for_update()
+            if self.bot.inventory.total_coins <= threshold:
+                continue
             b = await self.bot.cmd.balance()
             if b.wallet > threshold:
-                await self.bot.cmd.give(b.wallet - threshold, f"<@!{acc_id}>")
-            await asyncio.sleep(100)  # wait 100 seconds
+                threshold = random.randint(threshold_min, threshold_max)
+                amount = b.wallet - random.randint(result_min, result_max)
+                if amount <= 0:
+                    continue
+
+                # try to round to 100
+                try_values = [round(amount / 100) * 100, amount // 100 * 100, (amount + 99) // 100 * 100]
+                for v in try_values:
+                    if v >= result_min and v <= result_max:
+                        amount = v
+                        break
+
+                if mode == "dep":
+                    await self.bot.cmd.deposit(amount)
+                elif mode == "give":
+                    acc_id = self.bot.config["autodep_account_id"]
+                    await self.bot.cmd.give(amount, f"<@{acc_id}>")
 
