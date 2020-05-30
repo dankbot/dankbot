@@ -9,7 +9,7 @@ class FishExecution(BaseExecution):
     P_FISH_FAIL = re.compile("^lol you suck, you found nothing" + P_EOL)
     P_FISH_FAIL2 = re.compile("^oh snap, your fishing pole fell in the water bc the force of the OP AF fish was too much for your weak little macaroni arms!" + P_EOL)
     P_FISH_RISK = re.compile("^ahhhhh the fish is too strong and your line is at risk to break! quick, type the phrase below in the next 10 seconds\nType `(.*)`" + P_EOL)
-    P_NO_ITEM = re.compile("^You don't have a fishing pole, you need to go buy one\\." + P_EOL)
+    P_NO_ITEM = re.compile("^You don't have a fishing pole, you need to go buy one\\.")
     COOLDOWN_TXT = "The fish seem weary of fishermen right now, try again in "
 
     def __init__(self, handler):

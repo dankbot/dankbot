@@ -33,4 +33,6 @@ def filter_out_hint(content):
 
 
 def normalize_pings(content):
+    if content is None:
+        return None
     return P_NICKNAME_SET_PING.sub(lambda x: x.group(0).replace("!", ""), content)
