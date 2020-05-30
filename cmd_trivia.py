@@ -6,8 +6,8 @@ import asyncio
 
 class TriviaExecution(BaseExecution):
     T_TIMEOUT = "You did not answer in time, what the heck??"
-    P_WRONG_ANSWER = re.compile(f"no [a-z ]+, the correct answer was `.*`" + P_EOL)  #idiot|twit|nitwit|bonehead|blockhead|ignoramus|moron|ninny|stupid|simpleton
-    P_CORRECT_ANSWER = re.compile(f"^correct [a-z ]+, you earned \\*\\*([0-9,]+)\\*\\* coins" + P_EOL)  #smartass|large brain|genius
+    P_WRONG_ANSWER = re.compile(f"no [a-z\\- ]+, the correct answer was `.*`" + P_EOL)  #idiot|twit|nitwit|bonehead|blockhead|ignoramus|moron|ninny|stupid|simpleton
+    P_CORRECT_ANSWER = re.compile(f"^correct [a-z\\- ]+, you earned \\*\\*([0-9,]+)\\*\\* coins" + P_EOL)  #smartass|large brain|genius
 
     def __init__(self, handler):
         super().__init__(handler)
