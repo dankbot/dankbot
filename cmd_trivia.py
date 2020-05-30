@@ -41,6 +41,7 @@ class TriviaExecution(BaseExecution):
             r = TriviaExecution.P_CORRECT_ANSWER.match(message.content)
             if r:
                 self.money = parse_bot_int(r.group(1))
+                self.bot.inventory.add_coins(self.money, "trivia")
                 return True
 
             return False
