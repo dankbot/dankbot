@@ -8,7 +8,7 @@ from cmd_util import *
 from typer import MessageTyper
 from inventory import InventoryTracker
 
-from bot_cmd import BotCommandExecutor
+from bot_cmd_executor import BotCommandExecutor
 from bot_auto import AutoBot
 
 
