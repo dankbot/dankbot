@@ -52,3 +52,8 @@ class WrapperCommandHandler(commands.Cog):
     async def gamble(self, ctx, amount: int):
         r = await self.bot.cmd.gamble(amount)
         await ctx.send(str(r))
+
+    @commands.command()
+    async def trivia(self, ctx):
+        r = await self.bot.cmd.trivia()
+        await ctx.send(str(r))

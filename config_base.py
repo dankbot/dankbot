@@ -12,7 +12,8 @@ cooldown_normal = {
     "give": 20,
     "steal": 30,
     "use": 5,
-    "balance": 1
+    "balance": 1,
+    "trivia": 20
 }
 cooldown_donator = {
     "beg": 25,
@@ -28,7 +29,8 @@ cooldown_donator = {
     "give": 10,
     "steal": 10,
     "use": 4,
-    "balance": 0.5
+    "balance": 0.5,
+    "trivia": 15
 }
 
 config = {
@@ -36,7 +38,7 @@ config = {
     "max_reply_s": 10,
     "retry_on_timeout_s": 10,
     "search_preference": ["tree", "couch", "mailbox", "dresser", "discord", "bed", "attic", "laundromat", "grass", "shoe"],
-    "autodep_mode": "dep",
+    "autodep_mode": "off",
     "autodep_threshold": (2000, 8000),
     "autodep_result": (800, 1600),
 
