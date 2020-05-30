@@ -12,6 +12,8 @@ from cmd_withdraw import WithdrawHandler
 from cmd_bal import BalanceHandler
 from cmd_use import UseHandler
 from cmd_trivia import TriviaHandler
+from trivia_solver import TriviaSolver
+import random
 
 
 class BotCommandExecutor:
@@ -31,6 +33,7 @@ class BotCommandExecutor:
         self.gamble_handler = GambleHandler(bot)
         self.use_handler = UseHandler(bot)
         self.trivia_handler = TriviaHandler(bot)
+        self.trivia_solver = TriviaSolver()
 
     async def run_simple(self, handler, *args):
         while True:
@@ -109,7 +112,10 @@ class BotCommandExecutor:
             b.send_command()
             if not await b.wait_for_question():
                 continue
-            b.send_answer("a")
+            a = self.trivia_solver.solve(b.question, b.answers)
+            if a is None:
+                a = random.randint(0, 3)
+            b.send_answer("abcd"[a])
             await b
             if b.was_executed:
                 return b
