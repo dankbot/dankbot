@@ -2,6 +2,7 @@ import discord
 import logging
 from asyncio import Event
 import asyncio_rw_lock
+from bot_cmd_wrapper import WrapperCommandHandler
 from bot_event import EventBot
 
 from cmd_util import *
@@ -11,10 +12,12 @@ from inventory import InventoryTracker
 from bot_cmd_executor import BotCommandExecutor
 from bot_auto import AutoBot
 
+from discord.ext.commands import Bot
 
-class TheBot(discord.Client):
+
+class TheBot(Bot):
     def __init__(self, config):
-        super().__init__()
+        super().__init__(command_prefix="plz ")
         self.config = config
         self.log = logging.getLogger("bot")
         self.bots = []
@@ -32,6 +35,9 @@ class TheBot(discord.Client):
         self.cmd = BotCommandExecutor(self)
         self.auto = AutoBot(self)
         self.event_bot = EventBot(self)
+        self.cmd_handler_wrapper = WrapperCommandHandler(self)
+
+        self.add_cog(self.cmd_handler_wrapper)
 
     def add_bot(self, bot):
         self.bots.append(bot)
@@ -73,6 +79,7 @@ class TheBot(discord.Client):
                 await b.on_bot_message(message)
             await self.event_bot.on_bot_message(message)
 
+        await super().on_message(message)
         if message.content.startswith("plz ") and (message.author.id == self.user_id or message.author.id == self.owner_id):
             def parse_item_list(arr):
                 items = []
@@ -96,10 +103,6 @@ class TheBot(discord.Client):
                 return items
 
             args = message.content[4:].split(" ")
-            if args[0] == "wallet":
-                our_user = self.get_user(self.user_id)
-                s = f"{our_user}, u have {self.inventory.total_coins} in wallet, at least i think so.. (but i grinded {self.inventory.total_grinded})"
-                await message.channel.send(s)
             if args[0] == "grind":
                 our_user = self.get_user(self.user_id)
                 e = discord.Embed(title=our_user.name + '\'s grind stats')
@@ -121,33 +124,6 @@ class TheBot(discord.Client):
                 e.add_field(name="Lost", value=f"{b.total_lost} games, {b.total_lost_money} coins")
                 e.add_field(name="Drawn", value=f"{b.total_drawn} games, {b.total_drawn_money} coins")
                 await message.channel.send("", embed=e)
-            if args[0] == "beg":
-                r = await self.cmd.beg()
-                await message.channel.send(str(r))
-            if args[0] == "fish":
-                r = await self.cmd.fish()
-                await message.channel.send(str(r))
-            if args[0] == "hunt":
-                r = await self.cmd.hunt()
-                await message.channel.send(str(r))
-            if args[0] == "pm":
-                r = await self.cmd.post_meme()
-                await message.channel.send(str(r))
-            if args[0] == "search":
-                r = await self.cmd.search_with_preferences()
-                await message.channel.send(str(r))
-            if args[0] == "dep":
-                r = await self.cmd.deposit(int(args[1]))
-                await message.channel.send(str(r))
-            if args[0] == "withdraw":
-                r = await self.cmd.withdraw(int(args[1]))
-                await message.channel.send(str(r))
-            if args[0] == "bal":
-                r = await self.cmd.balance(args[1] if len(args) > 1 else None)
-                await message.channel.send(str(r))
-            if args[0] == "gamble":
-                r = await self.cmd.gamble(args[1] if len(args) > 1 else 100)
-                await message.channel.send(str(r))
             if args[0] == "invfetch":
                 r = await self.cmd.fetch_inventory()
                 inv_str = "; ".join(f"{k}: {v}" for [k, v] in r)
