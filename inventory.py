@@ -13,6 +13,9 @@ class InventoryTracker:
     def set_total_coins(self, coins):
         self.total_coins = coins
 
+    def add_total_coins(self, coins):
+        self.total_coins += coins
+
     def add_coins(self, count, source="unknown"):
         self.total_coins = max(self.total_coins + count, 0)
         self.total_grinded += count

@@ -52,6 +52,9 @@ class TheBot(Bot):
     def get_prefixed_cmd(self, cmd):
         return self.config["bot_prefix"] + " " + cmd
 
+    def get_user_name(self):
+        return self.get_user(self.user_id).name
+
     async def send_notify(self, msg):
         self.log.info(f"Sending notification: {msg}")
         await self.notify_channel_event.wait()

@@ -9,9 +9,6 @@ class MainCommandHandler(commands.Cog):
     def cog_check(self, ctx):
         return ctx.author.id == self.bot.user_id or ctx.author.id == self.bot.owner_id
 
-    def get_user_name(self):
-        return self.bot.get_user(self.bot.user_id).name
-
     @staticmethod
     def create_item_list(list):
         return "; ".join(f"{k}: {v}" for k, v in list)
@@ -40,7 +37,7 @@ class MainCommandHandler(commands.Cog):
 
     @commands.command()
     async def stat(self, ctx):
-        e = discord.Embed(title=self.get_user_name() + '\'s stats')
+        e = discord.Embed(title=self.bot.get_user_name() + '\'s stats')
         e.add_field(name="Wallet", value=f"{self.bot.inventory.total_coins} coins")
         e.add_field(name="Grinded Coins", value=f"total: {self.bot.inventory.total_grinded}; " + self.create_item_list(self.bot.inventory.coins_stats.items()))
 
@@ -53,7 +50,7 @@ class MainCommandHandler(commands.Cog):
     @commands.command()
     async def gamblestat(self, ctx):
         b = self.bot.cmd.gamble_handler
-        e = discord.Embed(title=self.get_user_name() + '\'s gamble stats')
+        e = discord.Embed(title=self.bot.get_user_name() + '\'s gamble stats')
         e.add_field(name="Won", value=f"{b.total_won} games, {b.total_won_money} coins")
         e.add_field(name="Lost", value=f"{b.total_lost} games, {b.total_lost_money} coins")
         e.add_field(name="Drawn", value=f"{b.total_drawn} games, {b.total_drawn_money} coins")
@@ -62,7 +59,7 @@ class MainCommandHandler(commands.Cog):
     @commands.command()
     async def invfetch(self, ctx):
         r = await self.bot.cmd.fetch_inventory()
-        await ctx.send(self.get_user_name() + "'s inventory: " + self.create_item_list(r))
+        await ctx.send(self.bot.get_user_name() + "'s inventory: " + self.create_item_list(r))
 
     @commands.command()
     async def transfer(self, ctx, who: discord.Member, *, list):
