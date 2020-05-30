@@ -16,6 +16,28 @@ class MainCommandHandler(commands.Cog):
     def create_item_list(list):
         return "; ".join(f"{k}: {v}" for k, v in list)
 
+    @staticmethod
+    def parse_item_list(arr):
+        items = []
+        for s in arr.split(";"):
+            s = s.strip()
+            if s == "":
+                continue
+            if s[0].isdigit():
+                cnt, _, what = s.partition(" ")
+            elif s[-1].isdigit():
+                what, _, cnt = s.rpartition(" ")
+                if what.endswith(":"):
+                    what = what[:-1]
+            else:
+                continue
+            what = what.strip()
+            cnt = cnt.strip()
+            if what == "" or cnt == "":
+                continue
+            items.append((what, int(cnt)))
+        return items
+
     @commands.command()
     async def stat(self, ctx):
         e = discord.Embed(title=self.get_user_name() + '\'s stats')
@@ -29,7 +51,7 @@ class MainCommandHandler(commands.Cog):
         await ctx.send("", embed=e)
 
     @commands.command()
-    async def gamble(self, ctx):
+    async def gamblestat(self, ctx):
         b = self.bot.cmd.gamble_handler
         e = discord.Embed(title=self.get_user_name() + '\'s gamble stats')
         e.add_field(name="Won", value=f"{b.total_won} games, {b.total_won_money} coins")
@@ -43,9 +65,20 @@ class MainCommandHandler(commands.Cog):
         await ctx.send(self.get_user_name() + "'s inventory: " + self.create_item_list(r))
 
     @commands.command()
+    async def transfer(self, ctx, who: discord.Member, *, list):
+        list = self.parse_item_list(list)
+        await ctx.send("list of items to transfer: " + "; ".join(f"{k}: {v}" for [k, v] in list))
+        msg = await ctx.send("i am just preparing for this...")
+
+        for i, (what, cnt) in enumerate(list):
+            await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
+            if not (await self.bot.cmd.gift(what, cnt, who.mention)).transferred:
+                await ctx.send(f"failed to give {what} {cnt}")
+        await msg.edit(content=f"done i think?")
+
+    @commands.command()
     async def slowgive(self, ctx, who: discord.Member, money: int):
-        #max_transfer = 10000
-        max_transfer = 10
+        max_transfer = 10000
         transfer_cnt = (money + max_transfer - 1) // max_transfer
         msg = await ctx.send(f"i am just preparing for this... ({transfer_cnt} transfers needed)")
         transfer_i = 0
@@ -53,7 +86,7 @@ class MainCommandHandler(commands.Cog):
             transfer_i += 1
             transfer_amount = min(money, max_transfer)
             await msg.edit(content=f"`({transfer_i}/{transfer_cnt})  GIVE {transfer_amount} ({money} remaining)`")
-            if not (await self.bot.cmd.give(transfer_amount, f"<@!{who}>")).transferred:
+            if not (await self.bot.cmd.give(transfer_amount, who.mention)).transferred:
                 await ctx.send(f"we failed somehow, sad and pitiful")
                 break
             money -= transfer_amount

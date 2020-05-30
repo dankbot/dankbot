@@ -83,40 +83,6 @@ class TheBot(Bot):
             await self.event_bot.on_bot_message(message)
 
         await super().on_message(message)
-        if message.content.startswith("plz ") and (message.author.id == self.user_id or message.author.id == self.owner_id):
-            def parse_item_list(arr):
-                items = []
-                for s in " ".join(arr).split(";"):
-                    s = s.strip()
-                    if s == "":
-                        continue
-                    if s[0].isdigit():
-                        cnt, _, what = s.partition(" ")
-                    elif s[-1].isdigit():
-                        what, _, cnt = s.rpartition(" ")
-                        if what.endswith(":"):
-                            what = what[:-1]
-                    else:
-                        continue
-                    what = what.strip()
-                    cnt = cnt.strip()
-                    if what == "" or cnt == "":
-                        continue
-                    items.append((what, int(cnt)))
-                return items
-
-            args = message.content[4:].split(" ")
-            if args[0] == "transfer" and len(args) >= 2:
-                who = get_mention_user_id(args[1])
-                list = parse_item_list(args[2:])
-                await message.channel.send("list of items to transfer: " + "; ".join(f"{k}: {v}" for [k, v] in list))
-                msg = await message.channel.send("i am just preparing for this...")
-
-                for i, (what, cnt) in enumerate(list):
-                    await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
-                    if not (await self.cmd.gift(what, cnt, f"<@!{who}>")).transferred:
-                        await message.channel.send(f"failed to give {what} {cnt}")
-                await msg.edit(content=f"done i think?")
 
     async def on_message_edit(self, before, after):
         if after.channel.id == self.config["type_channel_id"]:
