@@ -17,6 +17,7 @@ class AutoBot:
         asyncio.create_task(self.auto_hunt())
         asyncio.create_task(self.auto_meme())
         asyncio.create_task(self.auto_gamble())
+        asyncio.create_task(self.auto_trivia())
         asyncio.create_task(self.auto_dep())
         pass
 
@@ -43,6 +44,10 @@ class AutoBot:
     async def auto_gamble(self):
         while True:
             await self.bot.cmd.gamble(100)
+
+    async def auto_trivia(self):
+        while True:
+            await self.bot.cmd.trivia()
 
     async def auto_dep(self):
         mode = self.bot.config["autodep_mode"]
