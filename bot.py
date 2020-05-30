@@ -113,6 +113,14 @@ class TheBot(discord.Client):
                 e = discord.Embed(title=our_user.name + '\'s stats')
                 e.add_field(name="Coins", value="; ".join(f"{k}: {v}" for k, v in self.inventory.coins_stats.items()))
                 await message.channel.send("", embed=e)
+            if args[0] == "gamblestat":
+                b = self.cmd.gamble_handler
+                our_user = self.get_user(self.user_id)
+                e = discord.Embed(title=our_user.name + '\'s gamble stats')
+                e.add_field(name="Won", value=f"{b.total_won} games, {b.total_won_money} coins")
+                e.add_field(name="Lost", value=f"{b.total_lost} games, {b.total_lost_money} coins")
+                e.add_field(name="Drawn", value=f"{b.total_drawn} games, {b.total_drawn_money} coins")
+                await message.channel.send("", embed=e)
             if args[0] == "beg":
                 r = await self.cmd.beg()
                 await message.channel.send(str(r))
