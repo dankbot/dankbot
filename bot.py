@@ -137,6 +137,9 @@ class TheBot(discord.Client):
             if args[0] == "bal":
                 r = await self.cmd.balance(args[1] if len(args) > 1 else None)
                 await message.channel.send(str(r))
+            if args[0] == "gamble":
+                r = await self.cmd.gamble(args[1] if len(args) > 1 else 100)
+                await message.channel.send(str(r))
             if args[0] == "invfetch":
                 r = await self.cmd.fetch_inventory()
                 inv_str = "; ".join(f"{k}: {v}" for [k, v] in r)

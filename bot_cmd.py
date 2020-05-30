@@ -1,5 +1,6 @@
 from cmd_beg import BegHandler
 from cmd_fish import FishHandler
+from cmd_gamble import GambleHandler
 from cmd_hunt import HuntHandler
 from cmd_meme import PostMemeHandler
 from cmd_search import SearchHandler
@@ -25,6 +26,7 @@ class BotCommandExecutor:
         self.dep_handler = DepositHandler(bot)
         self.withdraw_handler = WithdrawHandler(bot)
         self.bal_handler = BalanceHandler(bot)
+        self.gamble_handler = GambleHandler(bot)
 
     async def run_simple(self, handler, *args):
         while True:
@@ -90,3 +92,6 @@ class BotCommandExecutor:
 
     async def balance(self, whose=None):
         return await self.run_simple(self.bal_handler, whose)
+
+    async def gamble(self, amount):
+        return await self.run_simple(self.gamble_handler, amount)
