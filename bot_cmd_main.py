@@ -89,3 +89,14 @@ class MainCommandHandler(commands.Cog):
             money -= transfer_amount
         await msg.edit(content=f"done i think?")
 
+    @commands.command()
+    async def autouse(self, ctx, what, times: int):
+        msg = await ctx.send(f"i am just preparing for this... ({times} uses needed)")
+        for i in range(1, times + 1):
+            await msg.edit(content=f"`({i}/{times})  Please wait...`")
+            r = await self.bot.cmd.use(what)
+            if not r.used:
+                await ctx.send(f"we failed somehow, sad and pitiful")
+                break
+        await msg.edit(content=f"done i think?")
+

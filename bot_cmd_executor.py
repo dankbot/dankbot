@@ -10,6 +10,7 @@ from cmd_give import GiveHandler
 from cmd_dep import DepositHandler
 from cmd_withdraw import WithdrawHandler
 from cmd_bal import BalanceHandler
+from cmd_use import UseHandler
 
 
 class BotCommandExecutor:
@@ -27,6 +28,7 @@ class BotCommandExecutor:
         self.withdraw_handler = WithdrawHandler(bot)
         self.bal_handler = BalanceHandler(bot)
         self.gamble_handler = GambleHandler(bot)
+        self.use_handler = UseHandler(bot)
 
     async def run_simple(self, handler, *args):
         while True:
@@ -95,3 +97,6 @@ class BotCommandExecutor:
 
     async def gamble(self, amount):
         return await self.run_simple(self.gamble_handler, amount)
+
+    async def use(self, what, count=None):
+        return await self.run_simple(self.use_handler, what, count)
