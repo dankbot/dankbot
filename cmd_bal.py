@@ -36,6 +36,9 @@ class BalanceExecution(BaseExecution):
         self.account_name = e.title[:-len("'s balance")]
         self.wallet = parse_bot_int(r.group(1))
         self.bank = parse_bot_int(r.group(2))
+
+        if self.account_name == self.bot.get_user_name() and self.account is None:
+            self.bot.inventory.set_total_coins(self.wallet)
         return True
 
     def __str__(self):
