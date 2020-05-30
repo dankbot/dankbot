@@ -29,7 +29,7 @@ class WithdrawExecution(BaseExecution):
         for s in [WithdrawExecution.P_SUCCESS, WithdrawExecution.P_SUCCESS2]:
             r = s.match(message.content)
             if r and self.amount == parse_bot_int(r.group(1)):
-                self.bot.inventory.add_total_coins(r.group(1))
+                self.bot.inventory.add_total_coins(self.amount)
                 self.success = True
                 return True
 
