@@ -2,6 +2,7 @@ import asyncio
 from cooldown import CooldownHelper
 import time
 import logging
+from cmd_util import normalize_pings
 
 
 class BaseExecutionHandler:
@@ -113,7 +114,8 @@ class BaseExecution:
 
     def dispatch_user_message(self, message):
         is_activation = False
-        if (message.content == self.request_command or self.request_command is None) and not self.active:
+        if (normalize_pings(message.content) == normalize_pings(self.request_command) or
+            self.request_command is None) and not self.active:
             self.active = True
             self.bump_timeout()
             is_activation = True

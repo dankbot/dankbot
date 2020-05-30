@@ -6,6 +6,7 @@ P_SHOP_NAME = "[A-Za-z0-9 ]+?"
 P_MENTION = "<@!?[0-9]+>"
 
 P_MENTION_EXTRACT = re.compile("<@!?([0-9]+)>")
+P_NICKNAME_SET_PING = re.compile("<@!([0-9]+)>")
 
 P_NON_ASCII = re.compile("[^\x20-\x7e]")
 
@@ -29,3 +30,7 @@ def parse_bot_int(i):
 
 def filter_out_hint(content):
     return P_HINT.sub("", content)
+
+
+def normalize_pings(content):
+    return P_NICKNAME_SET_PING.sub(lambda x: x.group(0).replace("!", ""), content)

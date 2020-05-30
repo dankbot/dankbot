@@ -2,6 +2,7 @@ import discord
 import logging
 from asyncio import Event
 import asyncio_rw_lock
+from bot_cmd_main import MainCommandHandler
 from bot_cmd_wrapper import WrapperCommandHandler
 from bot_event import EventBot
 
@@ -17,7 +18,7 @@ from discord.ext.commands import Bot
 
 class TheBot(Bot):
     def __init__(self, config):
-        super().__init__(command_prefix="plz ")
+        super().__init__(command_prefix="plz ", help_command=None)
         self.config = config
         self.log = logging.getLogger("bot")
         self.bots = []
@@ -35,8 +36,10 @@ class TheBot(Bot):
         self.cmd = BotCommandExecutor(self)
         self.auto = AutoBot(self)
         self.event_bot = EventBot(self)
+        self.cmd_handler_main = MainCommandHandler(self)
         self.cmd_handler_wrapper = WrapperCommandHandler(self)
 
+        self.add_cog(self.cmd_handler_main)
         self.add_cog(self.cmd_handler_wrapper)
 
     def add_bot(self, bot):
@@ -103,32 +106,6 @@ class TheBot(Bot):
                 return items
 
             args = message.content[4:].split(" ")
-            if args[0] == "grind":
-                our_user = self.get_user(self.user_id)
-                e = discord.Embed(title=our_user.name + '\'s grind stats')
-                e.add_field(name="Coins", value=str(self.inventory.total_grinded))
-                inv = "; ".join(f"{k}: {v}" for k, v in self.inventory.items.items())
-                if inv != "":
-                    e.add_field(name="Inventory", value=inv)
-                await message.channel.send("", embed=e)
-            if args[0] == "stat" or args[0] == "stats":
-                our_user = self.get_user(self.user_id)
-                e = discord.Embed(title=our_user.name + '\'s stats')
-                e.add_field(name="Coins", value="; ".join(f"{k}: {v}" for k, v in self.inventory.coins_stats.items()))
-                await message.channel.send("", embed=e)
-            if args[0] == "gamblestat":
-                b = self.cmd.gamble_handler
-                our_user = self.get_user(self.user_id)
-                e = discord.Embed(title=our_user.name + '\'s gamble stats')
-                e.add_field(name="Won", value=f"{b.total_won} games, {b.total_won_money} coins")
-                e.add_field(name="Lost", value=f"{b.total_lost} games, {b.total_lost_money} coins")
-                e.add_field(name="Drawn", value=f"{b.total_drawn} games, {b.total_drawn_money} coins")
-                await message.channel.send("", embed=e)
-            if args[0] == "invfetch":
-                r = await self.cmd.fetch_inventory()
-                inv_str = "; ".join(f"{k}: {v}" for [k, v] in r)
-                our_user = self.get_user(self.user_id)
-                await message.channel.send(our_user.name + "'s inventory: " + inv_str)
             if args[0] == "transfer" and len(args) >= 2:
                 who = get_mention_user_id(args[1])
                 list = parse_item_list(args[2:])
@@ -139,23 +116,6 @@ class TheBot(Bot):
                     await msg.edit(content=f"`({i+1}/{len(list)})  GIVE {what} {cnt}`")
                     if not (await self.cmd.gift(what, cnt, f"<@!{who}>")).transferred:
                         await message.channel.send(f"failed to give {what} {cnt}")
-                await msg.edit(content=f"done i think?")
-            if (args[0] == "slowgive" or args[0] == "sgive") and len(args) >= 2:
-                who = get_mention_user_id(args[1])
-                money = int(args[2])
-
-                max_transfer = 10000
-                transfer_cnt = (money + max_transfer - 1) // max_transfer
-                msg = await message.channel.send(f"i am just preparing for this... ({transfer_cnt} transfers needed)")
-                transfer_i = 0
-                while money > 0:
-                    transfer_i += 1
-                    transfer_amount = min(money, max_transfer)
-                    await msg.edit(content=f"`({transfer_i}/{transfer_cnt})  GIVE {transfer_amount} ({money} remaining)`")
-                    if not (await self.cmd.give(transfer_amount, f"<@!{who}>")).transferred:
-                        await message.channel.send(f"we failed somehow, sad and pitiful")
-                        break
-                    money -= transfer_amount
                 await msg.edit(content=f"done i think?")
 
     async def on_message_edit(self, before, after):
