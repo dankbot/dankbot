@@ -80,6 +80,7 @@ class TheBot(Bot):
                 b.on_user_message(message)
             await self.event_bot.on_user_message(message)
         if message.author.id == self.config["bot_id"]:
+            self.typer.update_forced_cooldown(0.5)
             message.content = filter_out_hint(message.content)
             for b in self.cmd_handlers:
                 await b.on_bot_message(message)
