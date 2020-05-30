@@ -7,8 +7,8 @@ class WithdrawExecution(BaseExecution):
     T_USAGE = "what are you withdrawing, dummy"
     T_INVALID_NUMBER = "Needs to be a whole number greater than 0"
     P_NOT_ENOUGH = re.compile("^Your second argument should be a number and no more than what you have in your bank \\([0-9,]+\\)" + P_EOL)
-    P_SUCCESS = re.compile(f"^\\*\\*([0-9,]+)\\*\\* coins withdrawn" + P_EOL)
-    P_SUCCESS2 = re.compile(f"^([0-9,]+) coins withdrawn." + P_EOL)
+    P_SUCCESS = re.compile(f"^\\*\\*([0-9,]+)\\*\\* coins? withdrawn" + P_EOL)
+    P_SUCCESS2 = re.compile(f"^([0-9,]+) coins? withdrawn." + P_EOL)
 
     def __init__(self, handler):
         super().__init__(handler)
