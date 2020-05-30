@@ -1,5 +1,6 @@
 import re
 import json
+import html
 
 
 class TriviaSolver:
@@ -9,7 +10,7 @@ class TriviaSolver:
         with open("data/trivia.json") as f:
             self.trivia_list = json.load(f)
             for q in self.trivia_list:
-                q["question"] = self.normalize_text(q["question"])
+                q["question"] = self.normalize_text(html.unescape(q["question"]))
 
     @staticmethod
     def normalize_text(txt):
@@ -20,7 +21,7 @@ class TriviaSolver:
         answers = [self.normalize_text(a) for a in answers]
         for q in self.trivia_list:
             if q["question"] == question:
-                correct_answer = self.normalize_text(q["correct_answer"])
+                correct_answer = self.normalize_text(html.unescape(q["correct_answer"]))
                 for i, a in enumerate(answers):
                     if a == correct_answer:
                         return i
