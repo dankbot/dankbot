@@ -1,8 +1,8 @@
 import asyncio
 import logging
 
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject
-from PyQt5.QtGui import QFont, QFontDatabase
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject, QTimer
+from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QWidget, \
     QLabel, QLineEdit, QGridLayout, QCheckBox, QMessageBox, QInputDialog, QPlainTextEdit
 import sys
@@ -94,6 +94,7 @@ class MainWindow(QMainWindow):
         self.current_profile = None
 
         self.log_text = QLogTextEdit()
+        self.bot = None
 
         vbox = QVBoxLayout()
 
@@ -165,22 +166,46 @@ class MainWindow(QMainWindow):
 
         if self.width() < 600:
             self.resize(600, self.height())
+
+        loop = asyncio.new_event_loop()
+
+        thread = Thread(target=self.bot_thread, args=(loop, bot_cfg))
+        thread_timer = QTimer()
+
         vbox = QVBoxLayout()
         lbl = QLabel("The bot has been started, have fun.")
         vbox.addWidget(lbl)
         vbox.addWidget(self.log_text, 1)
 
+        stop_btn = QPushButton("Stop the bot")
+
+        def do_stop():
+            asyncio.create_task(self.bot.close())
+        def stop():
+            thread_timer.start()
+            stop_btn.setEnabled(False)
+            stop_btn.setText("Stopping the bot...")
+            loop.call_soon_threadsafe(do_stop)
+
+        stop_btn.clicked.connect(stop)
+        vbox.addWidget(stop_btn)
+
         w = QWidget()
         w.setLayout(vbox)
         self.setCentralWidget(w)
 
-        th = Thread(target=self.bot_thread, args=(bot_cfg,))
-        th.start()
+        def check_stopped():
+            if not thread.is_alive():
+                lbl.setText("The bot has been stopped, feel free to close the program.")
+                stop_btn.setText("Stopped the bot")
 
-    def bot_thread(self, cfg):
-        loop = asyncio.new_event_loop()
+        thread.start()
+        thread_timer.setInterval(100)
+        thread_timer.timeout.connect(check_stopped)
+
+    def bot_thread(self, loop, cfg):
         asyncio.set_event_loop(loop)
-        bot = TheBot(cfg)
+        bot = self.bot = TheBot(cfg)
         loop.run_until_complete(bot.start(cfg["token"]))
         bot.stop()
 

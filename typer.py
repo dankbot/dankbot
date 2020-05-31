@@ -33,7 +33,8 @@ class MessageTyper:
 
     def stop(self):
         self.msgq.put(None)
-        self.thread.join()
+        if self.thread.is_alive():
+            self.thread.join()
 
     async def get_user_id(self):
         await self.user_id_event.wait()
