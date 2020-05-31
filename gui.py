@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("DankBot")
-        self.setWindowFlags(Qt.Dialog)
+        self.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
 
         self.profile_manager = ProfileManager()
         self.current_profile = None
