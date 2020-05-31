@@ -11,15 +11,24 @@ class AutoBot:
         self.log = logging.getLogger("bot.auto")
 
     def start(self):
-        asyncio.create_task(self.auto_beg())
-        asyncio.create_task(self.auto_search())
-        asyncio.create_task(self.auto_fish())
-        asyncio.create_task(self.auto_hunt())
-        asyncio.create_task(self.auto_meme())
-        asyncio.create_task(self.auto_gamble())
-        asyncio.create_task(self.auto_blackjack())
-        asyncio.create_task(self.auto_trivia())
-        asyncio.create_task(self.auto_dep())
+        m = self.bot.config["modules"] if "modules" in self.bot.config else []
+        if "beg" in m:
+            asyncio.create_task(self.auto_beg())
+        if "search" in m:
+            asyncio.create_task(self.auto_search())
+        if "fish" in m:
+            asyncio.create_task(self.auto_fish())
+        if "hunt" in m:
+            asyncio.create_task(self.auto_hunt())
+        if "pm" in m:
+            asyncio.create_task(self.auto_meme())
+        if "gamble" in m:
+            asyncio.create_task(self.auto_gamble())
+        if "blackjack" in m:
+            asyncio.create_task(self.auto_blackjack())
+        if "trivia" in m:
+            asyncio.create_task(self.auto_trivia())
+        asyncio.create_task(self.auto_dep()) # will exit if disabled
         pass
 
     async def auto_beg(self):
