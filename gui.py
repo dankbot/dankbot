@@ -2,7 +2,7 @@ import asyncio
 import logging
 import shutil
 
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject, QTimer
+from PyQt5.QtCore import Qt, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QWidget, \
     QLabel, QLineEdit, QGridLayout, QCheckBox, QMessageBox, QInputDialog, QPlainTextEdit
@@ -103,6 +103,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("DankBot")
         self.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
+        self.resize(400, 1)
 
         self.profile_manager = ProfileManager()
         self.current_profile = None
@@ -143,6 +144,13 @@ class MainWindow(QMainWindow):
         self._create_int_option("notify_channel_id", "Notify Channel ID")
         self._create_int_option("owner_id", "Owner Account ID")
         self._create_bool_option("donator", "Donator", "Use Donator Cooldowns")
+        self._create_module_list_option("Basic Modules", [("Beg", "beg"), ("Search", "search"), ("Meme", "pm"), ("Fish", "fish"), ("Hunt", "hunt")])
+        self._create_module_list_option("Gambling Modules", [("Gamble", "gamble"), ("Blackjack", "blackjack")])
+        self._create_module_list_option("Other Modules", [("Trivia", "trivia")])
+        self._create_drop_down_option("autodep_mode", "Auto-Dep Mode", [("Off", "off"), ("Deposit", "dep"), ("Give", "give")])
+        self._create_range_option("autodep_threshold", "Auto-Dep Threshold")
+        self._create_range_option("autodep_result", "Auto-Dep Result")
+        self._create_int_option("autodep_account_id", "Auto-Dep Account ID")
         vbox.addLayout(self.grid)
 
         vbox.addStretch(1)
@@ -162,10 +170,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(w)
 
         self.update_profile_list_combo()
-
-    def sizeHint(self):
-        h = super().sizeHint()
-        return QSize(400, h.height())
 
     def run(self):
         if self.current_profile is None:
@@ -330,6 +334,38 @@ class MainWindow(QMainWindow):
         self.setting_load_functions.append(load)
         self.setting_save_functions.append(save)
 
+    def _create_range_option(self, pref_id, name):
+        lbl = QLabel(name)
+        self.grid.addWidget(lbl, self.grid_row, 0)
+        l = QHBoxLayout()
+        txt = QLineEdit()
+        lbl2 = QLabel(" - ")
+        txt2 = QLineEdit()
+        l.addWidget(txt)
+        l.addWidget(lbl2)
+        l.addWidget(txt2)
+        self.grid.addItem(l, self.grid_row, 1)
+        self.grid_row += 1
+
+        def load(profile):
+            try:
+                txt.setText(str(profile[pref_id][0]))
+                txt2.setText(str(profile[pref_id][1]))
+            except (ValueError, KeyError):
+                txt.setText("")
+                txt2.setText("")
+        def save(profile):
+            try:
+                profile[pref_id] = (int(txt.text()), int(txt2.text()))
+            except ValueError:
+                if txt.text() != "":
+                    QMessageBox.information(self, "DankBot", f"The values for {name} are not valid integers")
+                    return False
+            return True
+        self.setting_disable_widgets.append(txt)
+        self.setting_load_functions.append(load)
+        self.setting_save_functions.append(save)
+
     def _create_bool_option(self, pref_id, name, name2):
         lbl = QLabel(name)
         self.grid.addWidget(lbl, self.grid_row, 0)
@@ -348,6 +384,65 @@ class MainWindow(QMainWindow):
         self.setting_disable_widgets.append(txt)
         self.setting_load_functions.append(load)
         self.setting_save_functions.append(save)
+
+    def _create_drop_down_option(self, pref_id, name, opts):
+        lbl = QLabel(name)
+        self.grid.addWidget(lbl, self.grid_row, 0)
+        cb = QComboBox()
+        for opt_disp, _ in opts:
+            cb.addItem(opt_disp)
+        self.grid.addWidget(cb, self.grid_row, 1)
+        self.grid_row += 1
+
+        def load(profile):
+            if pref_id in profile:
+                for i, (opt_disp, opt_int) in enumerate(opts):
+                    if opt_int == profile[pref_id]:
+                        cb.setCurrentIndex(i)
+                        return
+            cb.setCurrentIndex(-1)
+        def save(profile):
+            if cb.currentIndex() != -1:
+                profile[pref_id] = opts[cb.currentIndex()][1]
+            return True
+        self.setting_disable_widgets.append(cb)
+        self.setting_load_functions.append(load)
+        self.setting_save_functions.append(save)
+
+    def _create_module_list_option(self, lbl, modules):
+        lbl = QLabel(lbl)
+        self.grid.addWidget(lbl, self.grid_row, 0)
+        w = QWidget()
+        f = QHBoxLayout()
+        f.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(f)
+        self.grid.addWidget(w, self.grid_row, 1)
+        self.grid_row += 1
+
+        cbs = []
+        for md, mi in modules:
+            c = QCheckBox(md)
+            f.addWidget(c)
+            self.setting_disable_widgets.append(c)
+            cbs.append(c)
+        f.addStretch(1)
+
+        def load(profile):
+            enabled = set(profile["modules"] if "modules" in profile else [])
+            for i, (_, mi) in enumerate(modules):
+                cbs[i].setChecked((mi in enabled))
+        def save(profile):
+            enabled = set(profile["modules"] if "modules" in profile else [])
+            for i, (_, mi) in enumerate(modules):
+                if cbs[i].isChecked():
+                    enabled.add(mi)
+                else:
+                    enabled.discard(mi)
+            profile["modules"] = list(enabled)
+            return True
+        self.setting_load_functions.append(load)
+        self.setting_save_functions.append(save)
+
 
 
 
