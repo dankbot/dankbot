@@ -19,7 +19,6 @@ class AutoBot:
         asyncio.create_task(self.auto_gamble())
         asyncio.create_task(self.auto_trivia())
         asyncio.create_task(self.auto_dep())
-        pass
 
     async def auto_beg(self):
         while True:
@@ -39,7 +38,11 @@ class AutoBot:
 
     async def auto_meme(self):
         while True:
-            await self.bot.cmd.post_meme()
+            r = await self.bot.cmd.post_meme()
+            if r.no_laptop:
+                r = await self.bot.cmd.buy("laptop")
+                if not r.success:
+                    await self.bot.send_notify(f"prob get a laptop dude as we couldn't get one")
 
     async def auto_gamble(self):
         while True:

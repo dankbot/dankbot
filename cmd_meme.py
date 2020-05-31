@@ -45,7 +45,6 @@ class PostMemeExecution(BaseExecution):
             return True
 
         if PostMemeExecution.P_NO_ITEM.match(message.content):
-            await self.bot.send_notify(f"prob get a laptop dude")
             self.no_laptop = True
             return True
 
