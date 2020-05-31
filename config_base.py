@@ -40,6 +40,7 @@ config = {
     "max_reply_s": 10,
     "retry_on_timeout_s": 10,
     "search_preference": ["tree", "couch", "mailbox", "dresser", "discord", "bed", "attic", "laundromat", "grass", "shoe"],
+    "modules": ["beg", "search", "give", "fish", "hunt", "pm"],
     "autodep_mode": "off",
     "autodep_threshold": (2000, 8000),
     "autodep_result": (800, 1600),
