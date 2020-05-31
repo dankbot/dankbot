@@ -261,8 +261,11 @@ class MainWindow(QMainWindow):
             self.current_profile = self.profile_manager.profiles[index]
             for w in self.setting_disable_widgets:
                 w.setEnabled(True)
+            # load based on default cfg
+            p_with_defaults = dict(config)
+            p_with_defaults.update(self.current_profile)
             for l in self.setting_load_functions:
-                l(self.current_profile)
+                l(p_with_defaults)
         else:
             for w in self.setting_disable_widgets:
                 w.setEnabled(False)
