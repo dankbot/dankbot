@@ -74,7 +74,7 @@ class MessageTyper:
         try:
             self._thread()
         except Exception as e:
-            logging.getLogger("bot.typer").error("typer crashed", e)
+            logging.getLogger("bot.typer").exception("typer crashed", e)
 
     def _thread(self):
         options = webdriver.ChromeOptions()

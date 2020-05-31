@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
         try:
             loop.run_until_complete(bot.start(cfg["token"]))
         except Exception as e:
-            logging.getLogger("bot").error("Run failed", e)
+            logging.getLogger("bot").exception("Run failed", e)
         bot.stop()
 
     def update_profile_list_combo(self):
