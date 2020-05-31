@@ -201,7 +201,6 @@ class MainWindow(QMainWindow):
         def do_stop():
             asyncio.create_task(self.bot.close())
         def stop():
-            thread_timer.start()
             stop_btn.setEnabled(False)
             stop_btn.setText("Stopping the bot...")
             loop.call_soon_threadsafe(do_stop)
@@ -221,6 +220,7 @@ class MainWindow(QMainWindow):
         thread.start()
         thread_timer.setInterval(100)
         thread_timer.timeout.connect(check_stopped)
+        thread_timer.start()
 
     def bot_thread(self, loop, cfg):
         asyncio.set_event_loop(loop)
