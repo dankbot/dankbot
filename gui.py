@@ -1,8 +1,10 @@
 import asyncio
+import logging
 
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject
+from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QWidget, \
-    QLabel, QLineEdit, QGridLayout, QCheckBox, QMessageBox, QInputDialog
+    QLabel, QLineEdit, QGridLayout, QCheckBox, QMessageBox, QInputDialog, QPlainTextEdit
 import sys
 import os
 import json
@@ -11,6 +13,10 @@ import re
 from threading import Thread
 from bot import TheBot
 from config_base import config, cooldown_donator, cooldown_normal
+
+
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(name)s %(message)s', stream=sys.stdout)
+logging.getLogger("bot").setLevel(logging.DEBUG)
 
 
 class ProfileManager:
@@ -49,6 +55,35 @@ class ProfileManager:
         return p
 
 
+class QLogHandler(QObject, logging.Handler):
+    emitted = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def emit(self, record):
+        self.emitted.emit(self.format(record))
+
+
+log_handler = QLogHandler(None)
+log_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(name)s %(message)s"))
+logging.root.addHandler(log_handler)
+
+
+class QLogTextEdit(QPlainTextEdit):
+    def __init__(self, parent=None):
+        super().__init__()
+        self.setReadOnly(True)
+        self.setFont(QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        log_handler.emitted.connect(self.on_emitted)
+
+    def on_emitted(self, msg):
+        s = self.verticalScrollBar().value() >= self.verticalScrollBar().maximum()
+        self.appendPlainText(msg)
+        if s:
+            self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -57,6 +92,8 @@ class MainWindow(QMainWindow):
 
         self.profile_manager = ProfileManager()
         self.current_profile = None
+
+        self.log_text = QLogTextEdit()
 
         vbox = QVBoxLayout()
 
@@ -126,8 +163,17 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "DankBot", f"Must set a notification channel!")
             return
 
+        if self.width() < 600:
+            self.resize(600, self.height())
+        vbox = QVBoxLayout()
         lbl = QLabel("The bot has been started, have fun.")
-        self.setCentralWidget(lbl)
+        vbox.addWidget(lbl)
+        vbox.addWidget(self.log_text, 1)
+
+        w = QWidget()
+        w.setLayout(vbox)
+        self.setCentralWidget(w)
+
         th = Thread(target=self.bot_thread, args=(bot_cfg,))
         th.start()
 
