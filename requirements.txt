@@ -1,0 +1,4 @@
+discord.py==1.3.3
+selenium==3.141.0
+PyQt5==5.14.2
+PyQt5-sip==12.7.2
