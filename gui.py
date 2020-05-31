@@ -109,6 +109,7 @@ class MainWindow(QMainWindow):
 
         self.log_text = QLogTextEdit()
         self.bot = None
+        self.thread_timer = None
 
         vbox = QVBoxLayout()
 
@@ -189,7 +190,7 @@ class MainWindow(QMainWindow):
         loop = asyncio.new_event_loop()
 
         thread = Thread(target=self.bot_thread, args=(loop, bot_cfg))
-        thread_timer = QTimer()
+        self.thread_timer = QTimer()
 
         vbox = QVBoxLayout()
         lbl = QLabel("The bot has been started, have fun.")
@@ -201,9 +202,10 @@ class MainWindow(QMainWindow):
         def do_stop():
             asyncio.create_task(self.bot.close())
         def stop():
-            stop_btn.setEnabled(False)
-            stop_btn.setText("Stopping the bot...")
-            loop.call_soon_threadsafe(do_stop)
+            if thread.is_alive():
+                stop_btn.setEnabled(False)
+                stop_btn.setText("Stopping the bot...")
+                loop.call_soon_threadsafe(do_stop)
 
         stop_btn.clicked.connect(stop)
         vbox.addWidget(stop_btn)
@@ -218,9 +220,9 @@ class MainWindow(QMainWindow):
                 stop_btn.setText("Stopped the bot")
 
         thread.start()
-        thread_timer.setInterval(100)
-        thread_timer.timeout.connect(check_stopped)
-        thread_timer.start()
+        self.thread_timer.setInterval(100)
+        self.thread_timer.timeout.connect(check_stopped)
+        self.thread_timer.start()
 
     def bot_thread(self, loop, cfg):
         asyncio.set_event_loop(loop)
