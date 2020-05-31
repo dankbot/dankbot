@@ -27,6 +27,8 @@ class ProfileManager:
         self.load()
 
     def load(self):
+        if not os.path.isdir("profiles/"):
+            return
         for f in os.listdir("profiles/"):
             if not f.endswith(".json"):
                 continue
@@ -40,6 +42,8 @@ class ProfileManager:
                 print(e)
 
     def save_profile(self, p):
+        if not os.path.isdir("profiles/"):
+            os.mkdir("profiles/")
         with open("profiles/" + p["name"] + ".json", "w") as f:
             json.dump(p, f)
 
