@@ -50,7 +50,7 @@ class EventBot:
                 text = filter_ascii(r.group(1))
                 if can_just_type:
                     self.start_send_spam(text, 1)
-                if self.bot.config["event_notify"]:
+                if "event_notify" in self.bot.confg and self.bot.config["event_notify"]:
                     await self.bot.notify_channel_event.wait()
                     await self.bot.notify_channel.send("boss event in " + message.channel.mention + ": `" + text + "`")
 
@@ -61,7 +61,7 @@ class EventBot:
                 text = filter_ascii(r.group(1))
                 if can_just_type:
                     self.start_send_spam(text, 10)
-                if self.bot.config["event_notify"]:
+                if "event_notify" in self.bot.confg and self.bot.config["event_notify"]:
                     await self.bot.notify_channel_event.wait()
                     await self.bot.notify_channel.send("boss event in " + message.channel.mention + ": `" + text + "`")
 
