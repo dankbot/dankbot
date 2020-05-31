@@ -14,6 +14,7 @@ from bot_cmd_executor import BotCommandExecutor
 from bot_auto import AutoBot
 
 from discord.ext.commands import Bot
+from discord.ext.commands import CommandNotFound
 
 
 class TheBot(Bot):
@@ -101,5 +102,10 @@ class TheBot(Bot):
                 self.log.info(f"Embed {e.title}: {e.description}")
         if after.author.id == self.config["bot_id"]:
             await self.event_bot.on_bot_message_edit(after)
+
+    async def on_command_error(self, context, exception):
+        if isinstance(exception, CommandNotFound):
+            return
+        logging.error("Command execution failed: " + str(context.command), exc_info=exception)
 
 
