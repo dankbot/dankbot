@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import shutil
 
 from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import QFontDatabase
@@ -46,6 +47,15 @@ class ProfileManager:
             os.mkdir("profiles/")
         with open("profiles/" + p["name"] + ".json", "w") as f:
             json.dump(p, f)
+
+    def delete_profile(self, p):
+        if not os.path.isdir("profiles/"):
+            return
+        self.profiles.remove(p)
+        if os.path.isdir("profiles/" + p["name"]):
+            shutil.rmtree("profiles/" + p["name"])
+        if os.path.exists("profiles/" + p["name"] + ".json"):
+            os.remove("profiles/" + p["name"] + ".json")
 
     def check_new_profile_name(self, name):
         for p in self.profiles:
@@ -114,6 +124,10 @@ class MainWindow(QMainWindow):
         copy_btn.clicked.connect(self.clone_current_profile)
         copy_btn.setFixedWidth(50)
         hbox.addWidget(copy_btn)
+        del_btn = QPushButton("Del")
+        del_btn.clicked.connect(self.delete_current_profile)
+        del_btn.setFixedWidth(50)
+        hbox.addWidget(del_btn)
         vbox.addLayout(hbox)
 
         self.setting_disable_widgets = []
@@ -161,6 +175,9 @@ class MainWindow(QMainWindow):
 
         if "token" not in bot_cfg or len(bot_cfg["token"]) == 0:
             QMessageBox.information(self, "DankBot", f"Must set the bot token!")
+            return
+        if "type_channel_id" not in bot_cfg:
+            QMessageBox.information(self, "DankBot", f"Must set the message type channel!")
             return
         if "notify_channel_id" not in bot_cfg:
             QMessageBox.information(self, "DankBot", f"Must set a notification channel!")
@@ -251,6 +268,11 @@ class MainWindow(QMainWindow):
 
     def clone_current_profile(self):
         return self.create_new_profile(True)
+
+    def delete_current_profile(self):
+        if self.current_profile is not None:
+            self.profile_manager.delete_profile(self.current_profile)
+        self.update_profile_list_combo()
 
     def save_current_profile(self):
         for f in self.setting_save_functions:
