@@ -51,6 +51,10 @@ class AutoBot:
             await self.bot.cmd.gamble(100)
 
     async def auto_blackjack(self):
+        if "blahjack_exe" not in self.bot.config:
+            self.log.error("blahjack not set, cannot play blackjack")
+            return
+
         while True:
             await self.bot.cmd.blackjack(100)
 
