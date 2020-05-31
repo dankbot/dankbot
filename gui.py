@@ -225,7 +225,10 @@ class MainWindow(QMainWindow):
     def bot_thread(self, loop, cfg):
         asyncio.set_event_loop(loop)
         bot = self.bot = TheBot(cfg)
-        loop.run_until_complete(bot.start(cfg["token"]))
+        try:
+            loop.run_until_complete(bot.start(cfg["token"]))
+        except Exception as e:
+            logging.getLogger("bot").error("Run failed", e)
         bot.stop()
 
     def update_profile_list_combo(self):
