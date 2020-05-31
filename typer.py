@@ -1,14 +1,23 @@
+import asyncio
+
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 import time
+import sys
 from queue import Queue
 from threading import Thread, Event, Lock
 import logging
+import json
+
+
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(name)s %(message)s', stream=sys.stdout)
+logging.getLogger("bot").setLevel(logging.DEBUG)
 
 
 class MessageTyper:
     def __init__(self, profile_id, url):
+        self.loop = asyncio.get_event_loop()
         self.msgq = Queue()
         self.thread = Thread(target=self._thread)
         self.profile_id = profile_id
@@ -16,6 +25,8 @@ class MessageTyper:
         self.cooldown_lock = Lock()
         self.cooldown_expires = 0
         self.cooldown_notification = Event()
+        self.user_id = None
+        self.user_id_event = asyncio.Event()
 
     def start(self):
         self.thread.start()
@@ -23,6 +34,14 @@ class MessageTyper:
     def stop(self):
         self.msgq.put(None)
         self.thread.join()
+
+    async def get_user_id(self):
+        await self.user_id_event.wait()
+        return self.user_id
+
+    def set_user_id(self, user_id):
+        self.user_id = user_id
+        self.user_id_event.set()
 
     def send_message(self, msg):
         if msg is None:
@@ -49,10 +68,18 @@ class MessageTyper:
 
     def _thread(self):
         options = webdriver.ChromeOptions()
+        options.add_experimental_option('w3c', False)
         options.add_argument("user-data-dir=profiles/" + self.profile_id)
 
         driver = webdriver.Chrome(options=options)
         driver.get(self.url)
+
+        while True:
+            user_id = MessageTyper._get_user_id(driver)
+            if user_id is not None and len(user_id) > 0:
+                self.loop.call_soon_threadsafe(self.set_user_id, int(user_id))
+                break
+            time.sleep(0.01)
 
         while True:
             e = self.msgq.get()
@@ -70,6 +97,32 @@ class MessageTyper:
                     time.sleep(1)
 
         driver.close()
+
+    @staticmethod
+    def _get_user_id(driver):
+        try:
+            x = MessageTyper.devtool_cmd(driver, "DOMStorage.getDOMStorageItems", {"storageId": {"isLocalStorage": True, "securityOrigin": "https://discord.com"}})
+            for a in x["entries"]:
+                if a[0] == "user_id_cache":
+                    ret = a[1]
+                    if len(ret) > 0 and ret[0] == '"' and ret[-1] == '"':
+                        return a[1][1:-1]
+        except Exception as exception:
+            logging.exception("Failed to get user id", exception)
+        return None
+
+    @staticmethod
+    def devtool_cmd(driver, cmd, params=None):
+        # https://stackoverflow.com/questions/47297877/to-set-mutationobserver-how-to-inject-javascript-before-page-loading-using-sele
+        if params is None:
+            params = {}
+        resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
+        url = driver.command_executor._url + resource
+        body = json.dumps({'cmd': cmd, 'params': params})
+        response = driver.command_executor._request('POST', url, body)
+        if response['status']:
+            raise Exception(response.get('value'))
+        return response.get('value')
 
     @staticmethod
     def _send_message(driver, txt):

@@ -23,15 +23,15 @@ class TheBot(Bot):
         self.log = logging.getLogger("bot")
         self.bots = []
         self.cmd_handlers = []
-        self.user_id = config["user_id"]
-        self.owner_id = config["owner_id"]
+        self.user_id = None
+        self.owner_id = config["owner_id"] if "owner_id" in config else None
         self.exclusive_lock = asyncio_rw_lock.FifoLock()
-        self.typer = MessageTyper(config["profile_id"], config["type_url"])
+        self.typer = None
         self.inventory = InventoryTracker()
         self.notify_channel = None
         self.notify_channel_event = Event()
-        self.typer.start()
         self.started_bots = False
+        self.typer = MessageTyper(self.config["profile_id"], None)
 
         self.cmd = BotCommandExecutor(self)
         self.auto = AutoBot(self)
@@ -46,8 +46,8 @@ class TheBot(Bot):
         self.bots.append(bot)
 
     def stop(self):
-        self.typer.stop()
-        pass
+        if self.typer is not None:
+            self.typer.stop()
 
     def get_prefixed_cmd(self, cmd):
         return self.config["bot_prefix"] + " " + cmd
@@ -68,6 +68,12 @@ class TheBot(Bot):
 
         if not self.started_bots:
             self.started_bots = True
+
+            type_chan = self.get_channel(self.config["type_channel_id"])
+            self.typer.url = f"https://discord.com/channels/{type_chan.guild.id}/{type_chan.id}"
+            self.typer.start()
+            self.user_id = await self.typer.get_user_id()
+
             self.auto.start()
 
     async def on_message(self, message):

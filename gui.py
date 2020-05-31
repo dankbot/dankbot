@@ -1,3 +1,5 @@
+import asyncio
+
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QWidget, \
     QLabel, QLineEdit, QGridLayout, QCheckBox, QMessageBox, QInputDialog
@@ -5,6 +7,10 @@ import sys
 import os
 import json
 import re
+
+from threading import Thread
+from bot import TheBot
+from config_base import config, cooldown_donator, cooldown_normal
 
 
 class ProfileManager:
@@ -69,26 +75,16 @@ class MainWindow(QMainWindow):
         vbox.addLayout(hbox)
 
         self.setting_disable_widgets = []
+        self.setting_load_functions = []
         self.setting_save_functions = []
         self.grid = QGridLayout()
         self.grid_row = 0
         self._create_text_option("token", "Bot Token")
-        vbox.addLayout(self.grid)
-
-        show_advanced = QCheckBox("Show advanced")
-        vbox.addWidget(show_advanced)
-        show_advanced.stateChanged.connect(self.on_show_advanced_clicked)
-
-        self.grid = QGridLayout()
-        self.grid.setContentsMargins(0, 0, 0, 0)
-        self._create_text_option("type_url", "Type URL")
-        self._create_int_option("user_id", "User Account ID")
-        self._create_int_option("owner_id", "Owner Account ID")
+        self._create_int_option("type_channel_id", "Type Channel ID")
         self._create_int_option("notify_channel_id", "Notify Channel ID")
-        self.advanced_widget = QWidget()
-        self.advanced_widget.setLayout(self.grid)
-        self.advanced_widget.setVisible(False)
-        vbox.addWidget(self.advanced_widget)
+        self._create_int_option("owner_id", "Owner Account ID")
+        self._create_bool_option("donator", "Donator", "Use Donator Cooldowns")
+        vbox.addLayout(self.grid)
 
         vbox.addStretch(1)
         hbox = QHBoxLayout()
@@ -96,6 +92,7 @@ class MainWindow(QMainWindow):
         save_btn.clicked.connect(self.save_current_profile)
         hbox.addWidget(save_btn, 1)
         start_btn = QPushButton("Start the bot")
+        start_btn.clicked.connect(self.run)
         hbox.addWidget(start_btn, 2)
         vbox.addLayout(hbox)
 
@@ -108,6 +105,38 @@ class MainWindow(QMainWindow):
     def sizeHint(self):
         h = super().sizeHint()
         return QSize(400, h.height())
+
+    def run(self):
+        if self.current_profile is None:
+            return
+
+        self.save_current_profile()
+
+        bot_cfg = dict(config)
+        bot_cfg.update(self.current_profile)
+        bot_cfg["profile_id"] = bot_cfg["name"]
+        if bot_cfg["type_url"] is None or len(bot_cfg["type_url"]) == 0:
+            bot_cfg["type_url"] = "https://discord.com/app"
+        bot_cfg["cooldown"] = cooldown_donator if bot_cfg["donator"] else cooldown_normal
+
+        if "token" not in bot_cfg or len(bot_cfg["token"]) == 0:
+            QMessageBox.information(self, "DankBot", f"Must set the bot token!")
+            return
+        if "notify_channel_id" not in bot_cfg:
+            QMessageBox.information(self, "DankBot", f"Must set a notification channel!")
+            return
+
+        lbl = QLabel("The bot has been started, have fun.")
+        self.setCentralWidget(lbl)
+        th = Thread(target=self.bot_thread, args=(bot_cfg,))
+        th.start()
+
+    def bot_thread(self, cfg):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        bot = TheBot(cfg)
+        loop.run_until_complete(bot.start(cfg["token"]))
+        bot.stop()
 
     def update_profile_list_combo(self):
         profile_name = self.current_profile["name"] if self.current_profile is not None else None
@@ -122,16 +151,18 @@ class MainWindow(QMainWindow):
             if p["name"] == profile_name:
                 ci = i
         self.profile_combo.setCurrentIndex(ci)
+        self.on_current_profile_changed(ci)
+
+    def on_current_profile_changed(self, index):
         if len(self.profile_manager.profiles) > 0:
-            self.current_profile = self.profile_manager.profiles[ci]
+            self.current_profile = self.profile_manager.profiles[index]
             for w in self.setting_disable_widgets:
                 w.setEnabled(True)
+            for l in self.setting_load_functions:
+                l(self.current_profile)
         else:
             for w in self.setting_disable_widgets:
                 w.setEnabled(False)
-
-    def on_current_profile_changed(self, index):
-        self.current_profile = self.profile_manager.profiles[index]
 
     def create_new_profile(self, clone=False):
         name, ok = QInputDialog.getText(self, "DankBot", "Enter profile name")
@@ -155,12 +186,6 @@ class MainWindow(QMainWindow):
         self.profile_manager.save_profile(self.current_profile)
         return True
 
-    def on_show_advanced_clicked(self, state):
-        if state:
-            self.advanced_widget.setVisible(True)
-        else:
-            self.advanced_widget.setVisible(False)
-
     def _create_text_option(self, pref_id, name):
         lbl = QLabel(name)
         self.grid.addWidget(lbl, self.grid_row, 0)
@@ -168,10 +193,13 @@ class MainWindow(QMainWindow):
         self.grid.addWidget(txt, self.grid_row, 1)
         self.grid_row += 1
 
+        def load(profile):
+            txt.setText(profile[pref_id] if pref_id in profile else "")
         def save(profile):
             profile[pref_id] = txt.text()
             return True
         self.setting_disable_widgets.append(txt)
+        self.setting_load_functions.append(load)
         self.setting_save_functions.append(save)
 
     def _create_int_option(self, pref_id, name):
@@ -181,6 +209,11 @@ class MainWindow(QMainWindow):
         self.grid.addWidget(txt, self.grid_row, 1)
         self.grid_row += 1
 
+        def load(profile):
+            try:
+                txt.setText(str(profile[pref_id]) if pref_id in profile else "")
+            except ValueError:
+                txt.setText("")
         def save(profile):
             try:
                 profile[pref_id] = int(txt.text())
@@ -190,6 +223,26 @@ class MainWindow(QMainWindow):
                     return False
             return True
         self.setting_disable_widgets.append(txt)
+        self.setting_load_functions.append(load)
+        self.setting_save_functions.append(save)
+
+    def _create_bool_option(self, pref_id, name, name2):
+        lbl = QLabel(name)
+        self.grid.addWidget(lbl, self.grid_row, 0)
+        txt = QCheckBox(name2)
+        self.grid.addWidget(txt, self.grid_row, 1)
+        self.grid_row += 1
+
+        def load(profile):
+            try:
+                txt.setChecked(bool(profile[pref_id]) if pref_id in profile else False)
+            except ValueError:
+                txt.setChecked(False)
+        def save(profile):
+            profile[pref_id] = txt.isChecked()
+            return True
+        self.setting_disable_widgets.append(txt)
+        self.setting_load_functions.append(load)
         self.setting_save_functions.append(save)
 
 
