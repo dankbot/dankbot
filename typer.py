@@ -74,7 +74,7 @@ class MessageTyper:
         try:
             self._thread()
         except Exception as e:
-            logging.getLogger("bot.typer").exception("typer crashed", e)
+            logging.getLogger("bot.typer").exception("typer crashed")
 
     def _thread(self):
         options = webdriver.ChromeOptions()
@@ -104,7 +104,7 @@ class MessageTyper:
                         MessageTyper._send_message(driver, e)
                         break
                     except Exception as exception:
-                        logging.exception("Failed to send message", exception)
+                        logging.exception("Failed to send message")
                         time.sleep(1)
         finally:
             driver.close()
@@ -119,7 +119,7 @@ class MessageTyper:
                     if len(ret) > 0 and ret[0] == '"' and ret[-1] == '"':
                         return a[1][1:-1]
         except Exception as exception:
-            logging.exception("Failed to get user id", exception)
+            logging.exception("Failed to get user id")
         return None
 
     @staticmethod
