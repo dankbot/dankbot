@@ -103,6 +103,9 @@ class TheBot(Bot):
         if after.author.id == self.config["bot_id"]:
             await self.event_bot.on_bot_message_edit(after)
 
+    async def on_error(self, event_method, *args, **kwargs):
+        logging.exception('Ignoring exception in {}'.format(event_method))
+
     async def on_command_error(self, context, exception):
         if isinstance(exception, CommandNotFound):
             return
