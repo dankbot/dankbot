@@ -27,11 +27,14 @@ class MessageTyper:
         self.cooldown_notification = Event()
         self.user_id = None
         self.user_id_event = asyncio.Event()
+        self.running = False
 
     def start(self):
+        self.running = True
         self.thread.start()
 
     def stop(self):
+        self.running = False
         self.msgq.put(None)
         if self.thread.is_alive():
             self.thread.join()
@@ -75,7 +78,7 @@ class MessageTyper:
         driver = webdriver.Chrome(options=options)
         driver.get(self.url)
 
-        while True:
+        while self.running:
             user_id = MessageTyper._get_user_id(driver)
             if user_id is not None and len(user_id) > 0:
                 self.loop.call_soon_threadsafe(self.set_user_id, int(user_id))
@@ -89,7 +92,7 @@ class MessageTyper:
             if e.startswith("pls "):
                 self.wait_forced_cooldown()
                 self.update_forced_cooldown(10, True)
-            while True:
+            while self.running:
                 try:
                     MessageTyper._send_message(driver, e)
                     break
