@@ -92,7 +92,7 @@ class QLogTextEdit(QPlainTextEdit):
         log_handler.emitted.connect(self.on_emitted)
 
     def on_emitted(self, msg):
-        s = self.verticalScrollBar().value() >= self.verticalScrollBar().maximum()
+        s = self.verticalScrollBar().value() >= self.verticalScrollBar().maximum() - 10
         self.appendPlainText(msg)
         if s:
             self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
