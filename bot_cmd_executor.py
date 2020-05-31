@@ -11,6 +11,7 @@ from cmd_dep import DepositHandler
 from cmd_withdraw import WithdrawHandler
 from cmd_bal import BalanceHandler
 from cmd_use import UseHandler
+from cmd_buy import BuyHandler
 from cmd_trivia import TriviaHandler
 from trivia_solver import TriviaSolver
 import random
@@ -32,6 +33,7 @@ class BotCommandExecutor:
         self.bal_handler = BalanceHandler(bot)
         self.gamble_handler = GambleHandler(bot)
         self.use_handler = UseHandler(bot)
+        self.buy_handler = BuyHandler(bot)
         self.trivia_handler = TriviaHandler(bot)
         self.trivia_solver = TriviaSolver()
 
@@ -105,6 +107,9 @@ class BotCommandExecutor:
 
     async def use(self, what, count=None):
         return await self.run_simple(self.use_handler, what, count)
+
+    async def buy(self, what, count=None):
+        return await self.run_simple(self.buy_handler, what, count)
 
     async def trivia(self):
         while True:

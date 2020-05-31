@@ -57,3 +57,8 @@ class WrapperCommandHandler(commands.Cog):
     async def trivia(self, ctx):
         r = await self.bot.cmd.trivia()
         await ctx.send(str(r))
+
+    @commands.command()
+    async def buy(self, ctx, what, amount: int):
+        r = await self.bot.cmd.buy(what, amount)
+        await ctx.send(str(r))
