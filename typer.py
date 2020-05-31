@@ -19,7 +19,7 @@ class MessageTyper:
     def __init__(self, profile_id, url):
         self.loop = asyncio.get_event_loop()
         self.msgq = Queue()
-        self.thread = Thread(target=self._thread)
+        self.thread = Thread(target=self._thread_wrapper)
         self.profile_id = profile_id
         self.url = url
         self.cooldown_lock = Lock()
@@ -70,37 +70,44 @@ class MessageTyper:
                 return
             self.cooldown_notification.wait(rem)
 
+    def _thread_wrapper(self):
+        try:
+            self._thread()
+        except Exception as e:
+            logging.getLogger("bot.typer").error("typer crashed", e)
+
     def _thread(self):
         options = webdriver.ChromeOptions()
         options.add_experimental_option('w3c', False)
         options.add_argument("user-data-dir=profiles/" + self.profile_id)
 
         driver = webdriver.Chrome(options=options)
-        driver.get(self.url)
+        try:
+            driver.get(self.url)
 
-        while self.running:
-            user_id = MessageTyper._get_user_id(driver)
-            if user_id is not None and len(user_id) > 0:
-                self.loop.call_soon_threadsafe(self.set_user_id, int(user_id))
-                break
-            time.sleep(0.01)
-
-        while True:
-            e = self.msgq.get()
-            if e is None:
-                break
-            if e.startswith("pls "):
-                self.wait_forced_cooldown()
-                self.update_forced_cooldown(10, True)
             while self.running:
-                try:
-                    MessageTyper._send_message(driver, e)
+                user_id = MessageTyper._get_user_id(driver)
+                if user_id is not None and len(user_id) > 0:
+                    self.loop.call_soon_threadsafe(self.set_user_id, int(user_id))
                     break
-                except Exception as exception:
-                    logging.exception("Failed to send message", exception)
-                    time.sleep(1)
+                time.sleep(0.01)
 
-        driver.close()
+            while True:
+                e = self.msgq.get()
+                if e is None:
+                    break
+                if e.startswith("pls "):
+                    self.wait_forced_cooldown()
+                    self.update_forced_cooldown(10, True)
+                while self.running:
+                    try:
+                        MessageTyper._send_message(driver, e)
+                        break
+                    except Exception as exception:
+                        logging.exception("Failed to send message", exception)
+                        time.sleep(1)
+        finally:
+            driver.close()
 
     @staticmethod
     def _get_user_id(driver):
