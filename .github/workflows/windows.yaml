@@ -17,7 +17,7 @@ jobs:
     - name: Install pyinstaller
       run: pip install pyinstaller
     - name: Run pyinstaller
-      run: pyinstaller gui.py
+      run: pyinstaller --noconsole gui.py
     - name: Copy data
       run: cp -r data dist/gui/
     - name: Zip up the output
