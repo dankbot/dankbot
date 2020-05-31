@@ -157,8 +157,6 @@ class MainWindow(QMainWindow):
         bot_cfg = dict(config)
         bot_cfg.update(self.current_profile)
         bot_cfg["profile_id"] = bot_cfg["name"]
-        if bot_cfg["type_url"] is None or len(bot_cfg["type_url"]) == 0:
-            bot_cfg["type_url"] = "https://discord.com/app"
         bot_cfg["cooldown"] = cooldown_donator if bot_cfg["donator"] else cooldown_normal
 
         if "token" not in bot_cfg or len(bot_cfg["token"]) == 0:
