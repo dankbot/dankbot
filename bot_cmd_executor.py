@@ -13,13 +13,17 @@ from cmd_bal import BalanceHandler
 from cmd_use import UseHandler
 from cmd_buy import BuyHandler
 from cmd_trivia import TriviaHandler
+from cmd_blackjack import BlackjackHandler
 from trivia_solver import TriviaSolver
+from blahjack import run_blahjack
 import random
+import logging
 
 
 class BotCommandExecutor:
     def __init__(self, bot):
         self.bot = bot
+        self.log = logging.getLogger("bot.exec")
         self.beg_handler = BegHandler(bot)
         self.fish_handler = FishHandler(bot)
         self.hunt_handler = HuntHandler(bot)
@@ -35,6 +39,7 @@ class BotCommandExecutor:
         self.use_handler = UseHandler(bot)
         self.buy_handler = BuyHandler(bot)
         self.trivia_handler = TriviaHandler(bot)
+        self.blackjack_handler = BlackjackHandler(bot)
         self.trivia_solver = TriviaSolver()
 
     async def run_simple(self, handler, *args):
@@ -121,6 +126,26 @@ class BotCommandExecutor:
             if a is None:
                 a = random.randint(0, 3)
             b.send_answer("abcd"[a])
+            await b
+            if b.was_executed:
+                return b
+
+    async def blackjack(self, amount):
+        while True:
+            b = await self.blackjack_handler.new_execution()
+            b.send_command(amount)
+            while True:
+                if not await b.wait_for_round():
+                    break
+                r = b.rounds[-1]
+                chance_hit, chance_stand = await run_blahjack(self.bot.config["blahjack_exe"], r["our_cards"], r["bot_cards"], len(b.rounds))
+                self.log.info(f"Blahjack result. Hit: {chance_hit}; Stand: {chance_stand}.")
+                if chance_hit > 0.3 and chance_hit > chance_stand:
+                    b.send_decision("h")
+                elif chance_stand > 0.3:
+                    b.send_decision("s")
+                else:
+                    b.send_decision("e")
             await b
             if b.was_executed:
                 return b

@@ -62,3 +62,8 @@ class WrapperCommandHandler(commands.Cog):
     async def buy(self, ctx, what, amount: int):
         r = await self.bot.cmd.buy(what, amount)
         await ctx.send(str(r))
+
+    @commands.command()
+    async def blackjack(self, ctx, amount: int):
+        r = await self.bot.cmd.blackjack(amount)
+        await ctx.send(str(r))
