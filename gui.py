@@ -132,6 +132,8 @@ class MainWindow(QMainWindow):
         vbox.addLayout(hbox)
 
         self.setting_disable_widgets = []
+        self.setting_disable_widgets.append(copy_btn)
+        self.setting_disable_widgets.append(del_btn)
         self.setting_load_functions = []
         self.setting_save_functions = []
         self.grid = QGridLayout()
@@ -152,6 +154,8 @@ class MainWindow(QMainWindow):
         start_btn.clicked.connect(self.run)
         hbox.addWidget(start_btn, 2)
         vbox.addLayout(hbox)
+        self.setting_disable_widgets.append(save_btn)
+        self.setting_disable_widgets.append(start_btn)
 
         w = QWidget()
         w.setLayout(vbox)
