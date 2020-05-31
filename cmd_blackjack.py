@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from discord import Embed
 
 from cmd_base import BaseExecution, BaseExecutionHandler
@@ -68,6 +70,7 @@ class BlackjackExecution(BaseExecution):
         self.bot.inventory.add_coins(money_outcome, "blackjack")
         if known_balance is not None:
             self.bot.inventory.set_total_coins(known_balance)
+        self.handler.on_game_ended(self)
 
     @staticmethod
     def parse_cards(str):
@@ -186,6 +189,20 @@ class BlackjackHandler(BaseExecutionHandler):
         super().__init__(bot, "blackjack")
         self.execution_factory = lambda: BlackjackExecution(self)
         self.requires_exclusivity = True
+
+        self.outcomes = OrderedDict()
+        for t in ["won", "won_busted", "won_21", "won_5cards", "lost", "lost_busted", "lost_21", "tied", "end", "timeout"]:
+            self.outcomes[t] = 0
+        self.total_won = 0
+        self.total_lost = 0
+
+    def on_game_ended(self, e):
+        self.outcomes[e.outcome] += 1
+        if e.gained_money >= 0:
+            self.total_won += e.gained_money
+        else:
+            self.total_lost -= e.gained_money
+
 
     def is_activation_command(self, message):
         return message.content.startswith(self.bot.get_prefixed_cmd("bj ")) or \

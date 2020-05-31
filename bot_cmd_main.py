@@ -57,6 +57,15 @@ class MainCommandHandler(commands.Cog):
         await ctx.send("", embed=e)
 
     @commands.command()
+    async def bjstat(self, ctx):
+        b = self.bot.cmd.blackjack_handler
+        e = discord.Embed(title=self.bot.get_user_name() + '\'s blackjack stats')
+        e.add_field(name="Won", value=str(b.total_won))
+        e.add_field(name="Lost", value=str(b.total_lost))
+        e.add_field(name="Outcomes", value="; ".join(f"{k}: {v}" for k, v in b.outcomes.items()))
+        await ctx.send("", embed=e)
+
+    @commands.command()
     async def invfetch(self, ctx):
         r = await self.bot.cmd.fetch_inventory()
         await ctx.send(self.bot.get_user_name() + "'s inventory: " + self.create_item_list(r))
