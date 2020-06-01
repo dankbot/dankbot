@@ -317,7 +317,11 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "DankBot", f"The profile name is not valid")
             return False
 
+        old_current = dict(self.current_profile)
         self.current_profile = self.profile_manager.create_new_profile(name)
+        if clone:
+            del old_current["name"]
+            self.current_profile.update(old_current)
         self.update_profile_list_combo()
         return True
 
