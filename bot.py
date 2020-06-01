@@ -33,6 +33,10 @@ class TheBot(Bot):
         self.notify_channel_event = Event()
         self.started_bots = False
         self.typer = MessageTyper(self.config["profile_id"], None)
+        if "driver_path" in self.config:
+            self.typer.driver_path = self.config["driver_path"]
+        if "chrome_path" in self.config:
+            self.typer.chrome_path = self.config["chrome_path"]
 
         self.cmd = BotCommandExecutor(self)
         self.auto = AutoBot(self)

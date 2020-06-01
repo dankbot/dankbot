@@ -22,6 +22,8 @@ class MessageTyper:
         self.thread = Thread(target=self._thread_wrapper)
         self.profile_id = profile_id
         self.url = url
+        self.driver_path = "chromedriver"
+        self.chrome_path = None
         self.cooldown_lock = Lock()
         self.cooldown_expires = 0
         self.cooldown_notification = Event()
@@ -78,10 +80,12 @@ class MessageTyper:
 
     def _thread(self):
         options = webdriver.ChromeOptions()
+        if self.chrome_path is not None:
+            options.binary_location = self.chrome_path
         options.add_experimental_option('w3c', False)
         options.add_argument("user-data-dir=profiles/" + self.profile_id)
 
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(executable_path=self.driver_path, options=options)
         try:
             driver.get(self.url)
 
