@@ -67,3 +67,8 @@ class WrapperCommandHandler(commands.Cog):
     async def blackjack(self, ctx, amount: int):
         r = await self.bot.cmd.blackjack(amount)
         await ctx.send(str(r))
+
+    @commands.command()
+    async def profile(self, ctx):
+        r = await self.bot.cmd.profile()
+        await ctx.send(str(r))

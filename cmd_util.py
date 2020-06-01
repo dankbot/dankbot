@@ -36,3 +36,24 @@ def normalize_pings(content):
     if content is None:
         return None
     return P_NICKNAME_SET_PING.sub(lambda x: x.group(0).replace("!", ""), content)
+
+
+def parse_bot_time(time):
+    components = time.replace(" and ", ", ").split(", ")
+    ret = 0
+    for c in components:
+        l, _, r = c.partition(" ")
+        l = parse_bot_int(l)
+        if r == "second" or r == "seconds":
+            ret += l
+        if r == "minute" or r == "minutes":
+            ret += 60 * l
+        if r == "hour" or r == "hours":
+            ret += 60 * 60 * l
+        if r == "day" or r == "days":
+            ret += 24 * 60 * 60 * l
+        if r == "month" or r == "months":
+            ret += 30 * 24 * 60 * 60 * l
+        if r == "year" or r == "years":
+            ret += 365 * 24 * 60 * 60 * l
+    return ret

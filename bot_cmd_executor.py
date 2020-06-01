@@ -14,6 +14,7 @@ from cmd_use import UseHandler
 from cmd_buy import BuyHandler
 from cmd_trivia import TriviaHandler
 from cmd_blackjack import BlackjackHandler
+from cmd_profile import ProfileHandler
 from trivia_solver import TriviaSolver
 from blahjack import run_blahjack
 import random
@@ -40,6 +41,7 @@ class BotCommandExecutor:
         self.buy_handler = BuyHandler(bot)
         self.trivia_handler = TriviaHandler(bot)
         self.blackjack_handler = BlackjackHandler(bot)
+        self.profile_handler = ProfileHandler(bot)
         self.trivia_solver = TriviaSolver()
 
     async def run_simple(self, handler, *args):
@@ -149,3 +151,6 @@ class BotCommandExecutor:
             await b
             if b.was_executed:
                 return b
+
+    async def profile(self, whose=None):
+        return await self.run_simple(self.profile_handler, whose)
