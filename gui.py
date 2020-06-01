@@ -148,7 +148,7 @@ class MainWindow(QMainWindow):
         self._create_bool_option("donator", "Donator", "Use Donator Cooldowns")
         self._create_module_list_option("Basic Modules", [("Beg", "beg"), ("Search", "search"), ("Meme", "pm"), ("Fish", "fish"), ("Hunt", "hunt")])
         self._create_module_list_option("Gambling Modules", [("Gamble", "gamble"), ("Blackjack", "blackjack")])
-        self._create_module_list_option("Other Modules", [("Trivia", "trivia"), ("Depwit", "depwit")])
+        self._create_module_list_option("Other Modules", [("Trivia", "trivia"), ("Fidget", "fidget"), ("Depwit", "depwit")])
         self._create_drop_down_option("autodep_mode", "Auto-Dep Mode", [("Off", "off"), ("Deposit", "dep"), ("Give", "give")])
         self._create_range_option("autodep_threshold", "Auto-Dep Threshold")
         self._create_range_option("autodep_result", "Auto-Dep Result")

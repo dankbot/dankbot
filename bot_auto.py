@@ -29,6 +29,8 @@ class AutoBot:
             asyncio.create_task(self.auto_blackjack())
         if "trivia" in m:
             asyncio.create_task(self.auto_trivia())
+        if "fidget" in m:
+            asyncio.create_task(self.auto_fidget())
         if "depwit" in m:
             asyncio.create_task(self.auto_depwit())
         asyncio.create_task(self.auto_dep()) # will exit if disabled
@@ -73,6 +75,28 @@ class AutoBot:
     async def auto_trivia(self):
         while True:
             await self.bot.cmd.trivia()
+
+    async def auto_fidget(self):
+        while True:
+            r = await self.bot.cmd.use("fidget")
+            if r.already_in_use:
+                r = await self.bot.cmd.profile()
+                found = False
+                for (name, expires) in r.active_items:
+                    if name == "Fidget Spinner":
+                        self.log.info(f"Spinner already in use, will last {expires} seconds")
+                        await asyncio.sleep(expires + 5)
+                        found = True
+                        break
+                if not found:
+                    self.log.info("Spinner already in use, but we couldn't find it in profile??")
+                    await asyncio.sleep(30)
+            elif r.used:
+                self.log.info(f"We used a spinner! It will last {r.fidget_time} seconds")
+                await asyncio.sleep(r.fidget_time + 5)
+            elif r.not_owned:
+                self.log.info("Eww we have no spinner, buying one")
+                await self.bot.cmd.buy("fidget")
 
     async def auto_depwit(self):
         while True:
