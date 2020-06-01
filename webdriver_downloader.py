@@ -170,6 +170,8 @@ class QWebDriverDownloader(QObject):
             chromedriver_exe = "chromedriver.exe" if platform.system() == "Windows" else "chromedriver"
             with z.open(chromedriver_exe) as src, open(self.webdriver_path, "wb") as dest:
                 shutil.copyfileobj(src, dest)
+            if platform.system() != "Windows":
+                os.chmod(chromedriver_exe, 0o555)
         self.download_file.remove()
 
         print(f"Everything completed")
