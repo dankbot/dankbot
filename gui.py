@@ -12,6 +12,8 @@ import json
 import re
 
 from threading import Thread
+
+import webdriver_downloader
 from bot import TheBot
 from config_base import config, cooldown_donator, cooldown_normal
 
@@ -190,6 +192,19 @@ class MainWindow(QMainWindow):
             return
         if "notify_channel_id" not in bot_cfg:
             QMessageBox.information(self, "DankBot", f"Must set a notification channel!")
+            return
+
+        chrome = webdriver_downloader.find_chrome()
+        chrome_ver = webdriver_downloader.get_chrome_version(chrome)
+        if not chrome or not chrome_ver:
+            QMessageBox.information(self, "DankBot", f"Couldn't find a Chrome installation, select chrome.exe manually")
+            return
+        if not webdriver_downloader.check_webdriver_version(chrome_ver):
+            dler = webdriver_downloader.QWebDriverDownloader(self, chrome)
+            def on_web_driver_dled():
+                if dler.success:
+                    self.run()
+            dler.completed.connect(on_web_driver_dled)
             return
 
         if self.width() < 600:

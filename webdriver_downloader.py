@@ -5,7 +5,7 @@ import subprocess
 import sys
 import zipfile
 
-from PyQt5.QtCore import QUrl, QFile, QIODevice, pyqtSignal
+from PyQt5.QtCore import QUrl, QFile, QIODevice, pyqtSignal, QObject
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5.QtWidgets import QProgressDialog, QApplication, QMessageBox
 
@@ -53,8 +53,7 @@ def find_chrome():
                 return os.path.join(d, n)
     return None
 
-def get_chrome_version():
-    c = find_chrome()
+def get_chrome_version(c):
     if c is None:
         return None
     if platform.system() == "Windows":
@@ -88,10 +87,11 @@ def get_webdriver_download_url(webdriver_version):
     return f"https://chromedriver.storage.googleapis.com/{webdriver_version}/chromedriver_{plat}.zip"
 
 
-class QWebDriverDownloader:
-    completed = pyqtSignal(str)
+class QWebDriverDownloader(QObject):
+    completed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, chrome_path):
+        super().__init__(parent)
         self.success = False
 
         self.net = QNetworkAccessManager()
@@ -107,7 +107,7 @@ class QWebDriverDownloader:
         self.dialog.setValue(0)
         self.dialog.show()
 
-        cv = get_chrome_version()
+        cv = get_chrome_version(chrome_path)
         self.webdriver_path = get_webdriver_path(cv)
         url = get_webdriver_version_url(cv)
         print(f"Getting Web Driver version from: {url}")
@@ -167,7 +167,8 @@ class QWebDriverDownloader:
 
         print(f"Unzipping")
         with zipfile.ZipFile(self.webdriver_path + ".zip.tmp", 'r') as z:
-            with z.open("chromedriver") as src, open(self.webdriver_path, "wb") as dest:
+            chromedriver_exe = "chromedriver.exe" if platform.system() == "Windows" else "chromedriver"
+            with z.open(chromedriver_exe) as src, open(self.webdriver_path, "wb") as dest:
                 shutil.copyfileobj(src, dest)
         self.download_file.remove()
 
@@ -178,8 +179,3 @@ class QWebDriverDownloader:
 
     def on_read_ready(self):
         self.download_file.write(self.download_rep.readAll())
-
-
-app = QApplication([])
-d = QWebDriverDownloader(None)
-sys.exit(app.exec_())
