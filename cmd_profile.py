@@ -5,7 +5,7 @@ import re
 
 class ProfileExecution(BaseExecution):
     P_LEVEL = re.compile("^\\*\\*([0-9,]+)\\*\\*\n")
-    P_COINS = re.compile("^\\*\\*([0-9,]+)\\*\\* in wallet\n\\*\\*([0-9,]+)\\*\\* in bank\n\\*\\*([0-9,]+)%\\*\\* multiplier$")
+    P_COINS = re.compile("^\\*\\*([0-9,]+)\\*\\* in wallet\n\\*\\*([0-9,]+)\\*\\* in bank\n\\*\\*([0-9.]+)%\\*\\* multiplier$")
     P_ITEM = re.compile(f"^{P_SHOP_ICON} ?\\*\\*({P_SHOP_NAME})\\*\\* - [^-]+ - expires in (.*)$", re.M)
 
     def __init__(self, handler):
@@ -47,7 +47,7 @@ class ProfileExecution(BaseExecution):
         r = ProfileExecution.P_COINS.match(fields["Coins"])
         self.wallet = parse_bot_int(r.group(1))
         self.bank = parse_bot_int(r.group(2))
-        self.multiplier = parse_bot_int(r.group(3))
+        self.multiplier = float(r.group(3))
 
         print(fields["Active Items"])
         for r in ProfileExecution.P_ITEM.finditer(fields["Active Items"]):
