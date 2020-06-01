@@ -13,7 +13,7 @@ cooldown_normal = {
     "steal": 30,
     "use": 5,
     "balance": 1,
-    "trivia": 20,
+    "trivia": 25,
     "buy": 5
 }
 cooldown_donator = {
@@ -31,7 +31,7 @@ cooldown_donator = {
     "steal": 10,
     "use": 4,
     "balance": 0.5,
-    "trivia": 15,
+    "trivia": 20,
     "buy": 3
 }
 
