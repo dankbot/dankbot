@@ -27,8 +27,8 @@ def get_dirs():
     ret = []
     if platform.system() == "Windows":
         local_app_data = os.getenv('LOCALAPPDATA')
-        program_files = os.getenv('%ProgramW6432%')
-        program_files_x86 = os.getenv('%ProgramFiles(x86)%')
+        program_files = os.getenv('ProgramW6432')
+        program_files_x86 = os.getenv('ProgramFiles(x86)')
 
         for cp in ["Google\\Chrome\\Application", "Chromium\\Application"]:
             for d in [local_app_data, program_files, program_files_x86]:
