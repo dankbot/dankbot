@@ -155,6 +155,19 @@ class MainWindow(QMainWindow):
         self._create_int_option("autodep_account_id", "Auto-Dep Account ID")
         vbox.addLayout(self.grid)
 
+        show_advanced = QCheckBox("Show advanced")
+        vbox.addWidget(show_advanced)
+        show_advanced.stateChanged.connect(self.on_show_advanced_clicked)
+
+        self.grid = QGridLayout()
+        self.grid.setContentsMargins(0, 0, 0, 0)
+        self._create_text_option("chrome_path", "Chrome Path")
+        self._create_text_option("driver_path", "WebDriver Path")
+        self.advanced_widget = QWidget()
+        self.advanced_widget.setLayout(self.grid)
+        self.advanced_widget.setVisible(False)
+        vbox.addWidget(self.advanced_widget)
+
         vbox.addStretch(1)
         hbox = QHBoxLayout()
         save_btn = QPushButton("Save")
@@ -172,6 +185,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(w)
 
         self.update_profile_list_combo()
+
+    def on_show_advanced_clicked(self, state):
+        if state:
+            self.advanced_widget.setVisible(True)
+        else:
+            self.advanced_widget.setVisible(False)
 
     def run(self):
         if self.current_profile is None:
