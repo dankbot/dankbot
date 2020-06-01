@@ -2,6 +2,19 @@ import os
 import platform
 import subprocess
 
+if platform.system() == "Windows":
+    from win32api import GetFileVersionInfo, LOWORD, HIWORD
+
+    # https://stackoverflow.com/questions/16011379/operating-system-specific-requirements-with-pip
+    def get_version_number(filename):
+        try:
+            info = GetFileVersionInfo(filename, "\\")
+            ms = info['FileVersionMS']
+            ls = info['FileVersionLS']
+            return [HIWORD(ms), LOWORD(ms), HIWORD(ls), LOWORD(ls)]
+        except:
+            return None
+
 
 def get_dirs():
     ret = []
@@ -41,9 +54,9 @@ def get_chrome_version():
     if c is None:
         return None
     if platform.system() == "Windows":
-        return subprocess.check_output(["wmic", "datafile", "where", "name=" + c, "get", "Version", "/value"]).decode().strip()
+        return get_version_number(c)
     else:
-        return subprocess.check_output([c, "--product-version"]).decode().strip()
+        return subprocess.check_output([c, "--product-version"]).decode().strip().split(".")
 
 
 print(get_chrome_version())
