@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 
 from inventory import AsyncTotalListener
 import random
@@ -28,6 +29,8 @@ class AutoBot:
             asyncio.create_task(self.auto_blackjack())
         if "trivia" in m:
             asyncio.create_task(self.auto_trivia())
+        if "depwit" in m:
+            asyncio.create_task(self.auto_depwit())
         asyncio.create_task(self.auto_dep()) # will exit if disabled
         pass
 
@@ -70,6 +73,15 @@ class AutoBot:
     async def auto_trivia(self):
         while True:
             await self.bot.cmd.trivia()
+
+    async def auto_depwit(self):
+        while True:
+            cooldown = time.time() + 30
+            await self.bot.cmd.deposit(1)
+            await self.bot.cmd.withdraw(1)
+            r = cooldown - time.time()
+            if r > 0:
+                await asyncio.sleep(r)
 
     async def auto_dep(self):
         mode = self.bot.config["autodep_mode"]
