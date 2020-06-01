@@ -213,8 +213,10 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "DankBot", f"Must set a notification channel!")
             return
 
-        if "driver_path" not in bot_cfg:
-            chrome = webdriver_downloader.find_chrome() if "chrome_path" not in bot_cfg else bot_cfg["chrome_path"]
+        if "driver_path" not in bot_cfg or len(bot_cfg["driver_path"]) == 0:
+            if "chrome_path" not in bot_cfg or len(bot_cfg["chrome_path"]) == 0:
+                bot_cfg["chrome_path"] = webdriver_downloader.find_chrome()
+            chrome = bot_cfg["chrome_path"]
             chrome_ver = webdriver_downloader.get_chrome_version(chrome)
             if not chrome or not chrome_ver:
                 QMessageBox.information(self, "DankBot", f"Couldn't find a Chrome installation, select chrome.exe manually")
@@ -227,7 +229,6 @@ class MainWindow(QMainWindow):
                 dler.completed.connect(on_web_driver_dled)
                 return
 
-            bot_cfg["chrome_path"] = chrome
             bot_cfg["driver_path"] = webdriver_downloader.get_webdriver_path(chrome_ver)
 
         if self.width() < 600:
