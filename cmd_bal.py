@@ -1,3 +1,5 @@
+from discord import Embed
+
 from cmd_base import BaseExecution, BaseExecutionHandler
 from cmd_util import *
 import re
@@ -27,7 +29,7 @@ class BalanceExecution(BaseExecution):
             return False
 
         e = message.embeds[0]
-        if not e.title.endswith("'s balance"):
+        if e.author.name == Embed.Empty or not e.title.endswith("'s balance"):
             return False
         r = BalanceExecution.P_CONTENT.match(e.description)
         if not r:

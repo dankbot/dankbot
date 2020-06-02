@@ -1,3 +1,5 @@
+from discord import Embed
+
 from cmd_base import BaseExecution, BaseExecutionHandler
 from cmd_util import *
 import re
@@ -33,7 +35,7 @@ class ProfileExecution(BaseExecution):
             return False
 
         e = message.embeds[0]
-        if not e.author.name.endswith("'s profile"):
+        if e.author.name == Embed.Empty or not e.author.name.endswith("'s profile"):
             return False
 
         fields = {}
