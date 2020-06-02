@@ -1,8 +1,8 @@
 import re
 import asyncio
 
-P_HIT_CHANCE = re.compile("^Hit Chance: ([0-9.]*)$", re.M)
-P_STAND_CHANCE = re.compile("^Stand Chance: ([0-9.]*)$", re.M)
+P_HIT_CHANCE = re.compile("^Hit Chance: ([0-9.]*)\r?$", re.M)
+P_STAND_CHANCE = re.compile("^Stand Chance: ([0-9.]*)\r?$", re.M)
 
 
 async def run_blahjack(blahjack_path, our_cards, bot_cards, round_no):
