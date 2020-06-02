@@ -11,7 +11,12 @@ async def run_blahjack(blahjack_path, our_cards, bot_cards, round_no):
     inp += str(len(bot_cards)) + " " + " ".join(bot_cards) + "\n"
     inp += str(round_no)
     print(inp)
-    proc = await asyncio.create_subprocess_exec(blahjack_path, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE)
+    if platform.system() == "Windows":
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        proc = await asyncio.create_subprocess_exec(blahjack_path, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, startupinfo=startupinfo)
+    else:
+        proc = await asyncio.create_subprocess_exec(blahjack_path, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE)
     stdout, _ = await proc.communicate(inp.encode())
     stdout = stdout.decode()
     hit_chance = P_HIT_CHANCE.search(stdout)
