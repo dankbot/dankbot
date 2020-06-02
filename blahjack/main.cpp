@@ -97,9 +97,11 @@ struct BjState {
     void setUsedCards(bool b[]) const {
         memset(b, 0, BJ_DECK_N * sizeof(bool));
         for (BjCard c : cardsOur.cards)
-            b[c.deckIndex()] = true;
+            if (c)
+                b[c.deckIndex()] = true;
         for (BjCard c : cardsOpponent.cards)
-            b[c.deckIndex()] = true;
+            if (c)
+                b[c.deckIndex()] = true;
     }
 
     void print() const {
