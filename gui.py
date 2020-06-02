@@ -231,6 +231,11 @@ class MainWindow(QMainWindow):
 
             bot_cfg["driver_path"] = webdriver_downloader.get_webdriver_path(chrome_ver)
 
+        if "blahjack_exe" not in bot_cfg:
+            blahjack_exe = "blahjack.exe" if platform.system() == "Windows" else "blahjack"
+            if os.path.exists(blahjack_exe):
+                bot_cfg["blahjack_exe"] = blahjack_exe
+
         if self.width() < 600:
             self.resize(600, self.height())
 
