@@ -10,5 +10,5 @@ jobs:
     - name: Build Blahjack
       run: |
         @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
-        cl /EHsc main.cpp /link /out:blahjack.exe
+        cl /EHsc blahjack\main.cpp /link /out:blahjack.exe
       shell: cmd
