@@ -412,6 +412,7 @@ class MainWindow(QMainWindow):
                     return False
             return True
         self.setting_disable_widgets.append(txt)
+        self.setting_disable_widgets.append(txt2)
         self.setting_load_functions.append(load)
         self.setting_save_functions.append(save)
 
