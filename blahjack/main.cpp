@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
+#include <string>
 
 const char *const BJ_SYMBOLS[] = {
         "♥", "♠", "♦", "♣"

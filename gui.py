@@ -231,6 +231,11 @@ class MainWindow(QMainWindow):
 
             bot_cfg["driver_path"] = webdriver_downloader.get_webdriver_path(chrome_ver)
 
+        if "blahjack_exe" not in bot_cfg:
+            blahjack_exe = "blahjack.exe" if platform.system() == "Windows" else "blahjack"
+            if os.path.exists(blahjack_exe):
+                bot_cfg["blahjack_exe"] = blahjack_exe
+
         if self.width() < 600:
             self.resize(600, self.height())
 
@@ -317,7 +322,10 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "DankBot", f"The profile name is not valid")
             return False
 
-        old_current = dict(self.current_profile)
+        if self.current_profile is None:
+            clone = False
+        if clone:
+            old_current = dict(self.current_profile)
         self.current_profile = self.profile_manager.create_new_profile(name)
         if clone:
             del old_current["name"]
@@ -409,6 +417,7 @@ class MainWindow(QMainWindow):
                     return False
             return True
         self.setting_disable_widgets.append(txt)
+        self.setting_disable_widgets.append(txt2)
         self.setting_load_functions.append(load)
         self.setting_save_functions.append(save)
 

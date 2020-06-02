@@ -20,6 +20,13 @@ jobs:
       run: pyinstaller --noconsole --hidden-import=pywintypes gui.py
     - name: Copy data
       run: cp -r data dist/gui/
+    - name: Build Blahjack
+      run: |
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
+        cl /EHsc blahjack\main.cpp /link /out:blahjack.exe
+      shell: cmd
+    - name: Copy Blahjack
+      run: cp blahjack.exe dist/gui/
     - name: Zip up the output
       run: |
         Compress-Archive -DestinationPath gui.zip -Path dist/gui/
