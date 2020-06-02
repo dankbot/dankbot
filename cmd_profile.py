@@ -51,9 +51,9 @@ class ProfileExecution(BaseExecution):
         self.bank = parse_bot_int(r.group(2))
         self.multiplier = float(r.group(3))
 
-        print(fields["Active Items"])
-        for r in ProfileExecution.P_ITEM.finditer(fields["Active Items"]):
-            self.active_items.append((r.group(1), parse_bot_time(r.group(2))))
+        if "Active items" in fields:
+            for r in ProfileExecution.P_ITEM.finditer(fields["Active Items"]):
+                self.active_items.append((r.group(1), parse_bot_time(r.group(2))))
 
         if self.account_name == self.bot.get_user_name() and self.account is None:
             self.bot.inventory.set_total_coins(self.wallet)
