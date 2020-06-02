@@ -7,39 +7,8 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install dependencies
+    - name: Build Blahjack
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Install pyinstaller
-      run: pip install pyinstaller
-    - name: Run pyinstaller
-      run: pyinstaller --noconsole --hidden-import=pywintypes gui.py
-    - name: Copy data
-      run: cp -r data dist/gui/
-    - name: Zip up the output
-      run: |
-        Compress-Archive -DestinationPath gui.zip -Path dist/gui/
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: release-${{ github.run_number }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./gui.zip
-        asset_name: gui.zip
-        asset_content_type: application/zip
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
+        cl /EHsc main.cpp /link /out:blahjack.exe
+      shell: cmd
