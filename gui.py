@@ -51,9 +51,9 @@ class ProfileManager:
             json.dump(p, f)
 
     def delete_profile(self, p):
+        self.profiles.remove(p)
         if not os.path.isdir("profiles/"):
             return
-        self.profiles.remove(p)
         if os.path.isdir("profiles/" + p["name"]):
             shutil.rmtree("profiles/" + p["name"])
         if os.path.exists("profiles/" + p["name"] + ".json"):
