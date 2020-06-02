@@ -1,5 +1,7 @@
 import re
 import asyncio
+import platform
+import subprocess
 
 P_HIT_CHANCE = re.compile("^Hit Chance: ([0-9.]*)\r?$", re.M)
 P_STAND_CHANCE = re.compile("^Stand Chance: ([0-9.]*)\r?$", re.M)
