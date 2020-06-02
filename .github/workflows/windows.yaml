@@ -25,7 +25,7 @@ jobs:
         @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86
         cl /EHsc blahjack\main.cpp /link /out:blahjack.exe
       shell: cmd
-    - name: Copy blahjack
+    - name: Copy Blahjack
       run: cp blahjack.exe dist/gui/
     - name: Zip up the output
       run: |
