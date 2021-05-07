@@ -144,7 +144,7 @@ class MessageTyper:
         elem = None
         while elem is None:
             try:
-                elem = driver.find_element_by_xpath("//div[contains(@class, 'slateTextArea')]")
+                elem = driver.find_element_by_xpath("//div[contains(@class, 'textAreaSlate')]")
             except NoSuchElementException:
                 time.sleep(1)
         elem.click()
